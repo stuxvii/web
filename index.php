@@ -17,7 +17,7 @@
                 <a href=\"register.php\">Register</a>";
             }
             if (isset($_COOKIE['auth'])) {
-                echo "<a href=\"c/programs/acidBox93/\">acidBox93 (LOUD AUDIO)</a>
+                echo "<a href=\"https://windows93.net/c/programs/acidBox93/\">acidBox93 (LOUD AUDIO)</a>
                 <a href=\"character.php\">character customization</a>
                 <a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
             }
