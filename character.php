@@ -14,26 +14,18 @@ if (!isset($_COOKIE['auth'])) {
         <link rel="stylesheet" href="../character.css">
     </head>
     <body>
-        <div class="diva">
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-                <div class="head">
-                    <input class="head" type="color" style="height:60px; width:60px;">
-                </div>
-                <div class="middlepart">
-                    <input type="color" class="arm" style="height:100px;">
-                    <input type="color" class="torso" style="height:100px; width:100px;">
-                    <input type="color" class="arm" style="height:100px;">
-                </div>
-                <div class="legs">
-                    <input class="singleleg" type="color" style="height:100px;">
-                    <input class="singleleg" type="color" style="height:100px;">
-                </div>
-            </form>
+        <div class="char" id="char">
+            <span class="bodypart" id="head" style="height:60px; width:60px; background-color:#fff; bottom:0px;"></span>
+            <span class="bodypart" id="trso" style="height:100px; width:100px; background-color:#fff; top:0px;"></span>
+            <span class="bodypart" id="lleg" style="height:100px; width:45px; background-color:#fff; top:105px; right:0px;"></span>
+            <span class="bodypart" id="rleg" style="height:100px; width:45px; background-color:#fff; top:105px; left:0px;"></span>
+            <span class="bodypart" id="rarm" style="height:100px; width:45px; background-color:#fff; left:52px;"></span>
+            <span class="bodypart" id="larm" style="height:100px; width:45px; background-color:#fff; right:52px;"></span>
         </div>
         <div class="btmrite">
             <a href="/">Home page</a>
         </div>
-        <div class="colorpicker">
+        <div class="colorpicker" id="colorpicker">
             <?php
             $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1001, "EDEAEA" => 348, "E9DADA" => 349, "FFC9C9" => 1025, "FF9494" => 337, "965555" => 344, 
             "A34B4B" => 1007, "883E3E" => 350, "562424" => 339, "FF5959" => 331, "750000" => 332, "970000" => 327, "FF0000" => 1004, "966766" => 360, "BE6862" => 338, "957977" => 153, 
@@ -62,8 +54,7 @@ if (!isset($_COOKIE['auth'])) {
             }
             ?>
         </div>
-        <script>
-            const tt=[];let ci=0;for(let e=0;e<9;e++){const t="▁▂▃▄▅▄▃▂".slice(e)+"▁▂▃▄▅▄▃▂".slice(0,e);tt.push(t)}document.addEventListener("DOMContentLoaded",(function(){setInterval((()=>{document.title="αcidbloχ-αlρha"+tt[ci],ci=ci=(ci+1)%tt.length}),400)}));
-        </script>
+        <script src="../character.js"></script>
+        <script src="../titleanim.min.js"></script>
     </body>
 </html>

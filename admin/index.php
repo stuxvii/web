@@ -201,8 +201,6 @@ function main() {
                 ?>
             </div>
         </div>
-        <script>
-            const tt=[];let ci=0;for(let e=0;e<9;e++){const t="▁▂▃▄▅▄▃▂".slice(e)+"▁▂▃▄▅▄▃▂".slice(0,e);tt.push(t)}document.addEventListener("DOMContentLoaded",(function(){setInterval((()=>{document.title="αcidbloχ-αlρha"+tt[ci],ci=ci=(ci+1)%tt.length}),400)}));
-        </script>
+        <script src="../titleanim.min.js"></script>
     </body>
 </html>
