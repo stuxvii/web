@@ -1,0 +1,7 @@
+c/
+gallery/
+*.log
+favicon.ico
+*.txt
+*.db
+.htaccess
