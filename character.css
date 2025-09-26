@@ -1,37 +1,80 @@
-.char {
-    z-index: -1;
+.border {
+    border: 2px solid #fff;
     display: flex;
-    align-content: center;
-    justify-content: center;
-    position: absolute;
-    left: 50%;  
-    top: 45%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    max-height:max-content;
+    min-width: 11vw;
+}
+.charborder {
+    border: 2px solid #fff;
+    display: flex;
+    max-height:max-content;
+    min-width: 8em;
+    position: relative;
     max-height: 1000px;
 }
+
 .bodypart {
-    position: fixed;
-    border: 3px ridge #000;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-evenly;
+    cursor: pointer;
+    position: absolute;
+    border: 3px solid #000;
+    background-color: #fff;
+}
+.limb {
+    height: 3.6em;
+    width: 1.5em;
+}
+#head {
+    height: 2.1em;
+    width: 2.1em;
+    top: 0px;
+    left: 70px;
+}
+
+#trso {
+    height: 3.6em;
+    width: 3.8em;
+    top: 60px;
+    left: 50px;
+}
+
+#larm {
+    top: 60px;
+    left: 5px;
+}
+
+#rarm {
+    top: 60px;
+    left: 155px;
+}
+
+#lleg {
+    top: 160px;
+    left: 55px;
+}
+
+#rleg {
+    top: 160px;
+    left: 105px;
+}
+.btmleft {
+  position: absolute;
+  font-size: 0.5em;
+  bottom: 0;
+  left: 0;
+  padding: 5px;
 }
 .colorpicker {
-    z-index: 5;
-    background-color: #222;
     display: flex;
     flex-wrap: wrap;
-    max-width: 450px;
-    line-break: anywhere;
+    max-width: 440px;
 }
 .color {
-    border: 3px ridge #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
     display: flex;
-    height: 20px;
-    width: 20px;
+    height: 10px;
+    width: 15px;
     position:relative;
-    border-radius: 4px;
     margin:3px;
     padding:1px;
 }

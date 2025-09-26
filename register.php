@@ -16,8 +16,6 @@ if (isset($_COOKIE['auth'])) {
 
 $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 
-// Create the table if it doesn't exist (for some godforsaken reason i.e wiped or deleted)
-
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 
 function guidv4($data = null) { // ctrl+c ctrl+v (idfk what this is)

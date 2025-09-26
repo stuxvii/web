@@ -26,23 +26,47 @@
         </div>
         <div class="btmleft">
             <?php
-            $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+            const logout = 'logout.php';
+
+            $db = null;
+            try {
+                $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+            } catch (Exception $e) {
+                error_log("Database connection failed: " . $e->getMessage());
+                exit("Database connection error.");
+            }
             if (isset($_COOKIE['auth'])) {
+                $authCookie = $_COOKIE['auth'];
+
                 $stmt = $db->prepare("
                     SELECT username
                     FROM users 
                     WHERE authuuid = :cookie
+                    LIMIT 1
                 ");
                 
-                $stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
+                $stmt->bindValue(':cookie', $authCookie, SQLITE3_TEXT);
+                
+                $result = $stmt->execute();
 
-                $name = $stmt->execute();
-
-                if ($name) {
-                    while ($row = $name->fetchArray(SQLITE3_ASSOC)) {
+                if ($result) {
+                    $row = $result->fetchArray(SQLITE3_ASSOC);
+                    if ($row) {
                         echo "Hey there, " . $row['username'];
+                    } else {
+                        header("Location: " . logout);
+                        exit();
                     }
+                    $result->finalize();
+                } else {
+                    error_log("SQL execution failed: " . $db->lastErrorMsg());
+                    header("Location: " . logout);
+                    exit();
                 }
+            }
+
+            if ($db) {
+                $db->close();
             }
             ?>
         </div>

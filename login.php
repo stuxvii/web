@@ -32,71 +32,39 @@ function error($reason) {
     return "<img src=\"error.png\"><span class=\"info\">$reason</span>";
 }
 
-function login($un,$pass) {
+function login($un, $pass) {
     global $usernamevalidateregex;
     global $db;
 
+    $invalid = "The credentials you provided are invalid."; // We really shouldn't give like.. yk.. clues to people if they've guessed a username or not.
+
     if ($un === '' || $pass === '') {
-        echo error("Password and username, you dingus.");
+        echo error("Password and username, you dingus."); 
         return;
     }
 
     if (!preg_match($usernamevalidateregex, $un)) {
-        echo error("The username '$un' is invalid.");
+        echo error($invalid);
         return;
     }
 
-    $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = :un");
-    $stmtcheckusername->bindValue(':un', $un, SQLITE3_TEXT);
-    $result = $stmtcheckusername->execute();
-    
-    if ($result) {
-        $row = $result->fetchArray(SQLITE3_ASSOC);
-        $user_count = $row['count'];
-    } else {
-        echo error("Internal error while checking username.");
-        return;
-    }
+    $stmt = $db->prepare("SELECT pass, authuuid FROM users WHERE username = :un");
+    $stmt->bindValue(':un', $un, SQLITE3_TEXT);
+    $result = $stmt->execute();
 
-    if ($user_count > 0) {
-        $stmt = $db->prepare("
-            SELECT pass
-            FROM users 
-            WHERE username = :user
-        ");
+    $user_data = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+
+    if ($user_data && password_verify($pass, $user_data['pass'])) {
+
+        setcookie('auth', $user_data['authuuid'], time() + (86400 * 30), "/", "acdbx.top", true, true);
+        header("Location: index.php");
+        exit;
         
-        $stmt->bindValue(':user', $un, SQLITE3_TEXT);
-
-        $storedpass = $stmt->execute();
-
-        if ($storedpass) {
-            while ($row = $storedpass->fetchArray(SQLITE3_ASSOC)) {
-                $hashpw = password_verify($pass,$row['pass']);
-                if ($hashpw === true) {
-                    $stmt = $db->prepare("
-                        SELECT authuuid
-                        FROM users 
-                        WHERE username = :user
-                    ");
-                    
-                    $stmt->bindValue(':user', $un, SQLITE3_TEXT);
-                    $auth = $stmt->execute();
-                    if ($auth) {
-                        while ($row = $auth->fetchArray(SQLITE3_ASSOC)) {
-                            setcookie('auth', $row['authuuid'], time() + (86400 * 30), "/", "acdbx.top", true, true);
-                            header("Location: index.php");
-                            exit;
-                        }
-                    }
-                } else {
-                    echo error("BOOO wrong password try again");
-                }
-            }
-        }
     } else {
-        echo error("The username '$un' is not valid.");
+        echo error($invalid);
     }
 }
+
 ?>
         <div class="diva">
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">

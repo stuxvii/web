@@ -26,6 +26,7 @@ $requestedprev = false;
 if (!isset($_COOKIE['auth'])) {
     global $allowed;
     echo "You're not logged in.";
+    header("Location: /index.php");
     $allowed = false;
     return;
 } else {
@@ -59,40 +60,64 @@ function keygenfunc($length = 12) {
     return $random_key;
 }
 
-function kill($victim) {
+function kill($victim, $allowed, $dbpath) {
     global $requestedprev;
-    global $allowed;
     $requestedprev = true;
-    if ($allowed == false) {
+    if ($allowed === false) {
         return;
     }
-    global $dbpath;
-    echo "Attempting to connect to the database...<br>";
-    $db = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-    echo "Successfully connected to the database...<br>";
-    try {
-        $insert_sql = "SELECT username FROM users WHERE id = :id";
-        $stmt = $db->prepare($insert_sql);
-        $stmt->bindValue(':id', $victim, SQLITE3_INTEGER);
-        echo "Performing database search...<br>";
-        $username = $stmt->execute();
-        if ($username) {
-            $notfound = true;
-            while ($row = $username->fetchArray(SQLITE3_ASSOC)) {
-                $notfound = false;
-                $selecteduser = $row['username'];
-                if (!$selecteduser == NULL) {
-                    echo "a"; // TODO: Implement user deletion procedure
-                } else {
-                    echo "UserID not found.<a href='/admin/'>Go back</a>";
-                }
-            }
-        }
-    } catch (Exception $e) {
-        echo "Error when querying users.<a href='/admin/'>Go back</a>";
-        return; // dont wanna execute code that is not ready,,
-    }
     
+    if (!is_numeric($victim) || $victim <= 0) {
+        echo "Please enter a valid UserID.<a href='/admin/'>Go back</a>";
+        return;
+    }
+
+    $db = null;
+    try {
+        echo "Attempting to connect to the database...<br>";
+        $db = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE); 
+        echo "Successfully connected to the database...<br>";
+
+        $select_sql = "SELECT id FROM users WHERE id = :id";
+        $stmt_check = $db->prepare($select_sql);
+        $stmt_check->bindValue(':id', (int)$victim, SQLITE3_INTEGER);
+        
+        echo "Performing database search...<br>";
+        $result = $stmt_check->execute();
+        
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+        
+        if ($row) {
+            echo "Found user.<br>";
+
+            $update_sql = "
+                UPDATE users 
+                SET 
+                    username = \"Content Deleted\",
+                    pass = NULL,
+                    discordtag = NULL,
+                    timestamp = NULL,
+                    key = NULL,
+                    authuuid = NULL
+                WHERE id = :id
+            ";
+            $stmt_update = $db->prepare($update_sql);
+            $stmt_update->bindValue(':id', (int)$victim, SQLITE3_INTEGER);
+            $stmt_update->execute();
+            echo "User erased (anonymized).<br>";
+            
+        } else {
+            echo "UserID not found.<a href='/admin/'>Go back</a>";
+        }
+
+    } catch (Exception $e) {
+        error_log("Database error in kill(): " . $e->getMessage()); 
+        echo "Internal error when querying users.<a href='/admin/'>Go back</a>";
+    } finally {
+        if ($db) {
+            $db->close();
+        }
+    } 
 }
 
 function main() {
@@ -141,6 +166,10 @@ function main() {
 
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
+    } finally {
+        if ($db) {
+            $db->close();
+        }
     }
 
 }
@@ -159,7 +188,7 @@ function main() {
                     return;
                 }
                 if (isset($_POST['username'])) {
-                    kill($_POST['username']);
+                    kill($_POST['username'],$allowed,$dbpath);
                 } else 
                 if (isset($_POST['keygen'])) {
                     main();
