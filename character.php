@@ -9,6 +9,7 @@ if (!isset($_COOKIE['auth'])) {
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="../animate.min.css">
         <link rel="stylesheet" href="../styles.css">
         <link rel="stylesheet" href="../character.css">
     </head>

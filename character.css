@@ -45,6 +45,10 @@
     margin:3px;
     padding:1px;
 }
+.color:hover {
+    animation-name: jello;
+    animation-duration: 0.5s;
+}
 input[type=color]{
     width: 45px;
 }
