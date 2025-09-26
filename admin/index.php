@@ -82,14 +82,14 @@ function kill($victim) {
                 $notfound = false;
                 $selecteduser = $row['username'];
                 if (!$selecteduser == NULL) {
-                    echo "a";
+                    echo "a"; // TODO: Implement user deletion procedure
                 } else {
                     echo "UserID not found.<a href='/admin/'>Go back</a>";
                 }
             }
         }
     } catch (Exception $e) {
-        echo "Error when querying users.";
+        echo "Error when querying users.<a href='/admin/'>Go back</a>";
         return; // dont wanna execute code that is not ready,,
     }
     
