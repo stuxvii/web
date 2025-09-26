@@ -30,10 +30,18 @@ $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1
 $currentuid = NULL;
 $avatarsdb = new SQLite3('avatars.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-
+$row = NULL;
+$color_map = [
+    'head_color' => 'head',
+    'trso_color' => 'torso',
+    'lleg_color' => 'leftleg',
+    'rleg_color' => 'rightleg',
+    'larm_color' => 'leftarm',
+    'rarm_color' => 'rightarm'
+];
 $avatarsdb->exec("
 CREATE TABLE IF NOT EXISTS avatars (
-    id INTEGER PRIMARY KEY, -- id should not be AUTOINCREMENT if you're inserting specific UIDs
+    id INTEGER PRIMARY KEY,
     head INTEGER,
     torso INTEGER,
     leftarm INTEGER,
@@ -56,26 +64,22 @@ $stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
 $name = $stmt->execute();
 
 if ($name) {
-    while ($row = $name->fetchArray(SQLITE3_ASSOC)) {
-        $currentuid = $row['id'];
+    $row = $name->fetchArray(SQLITE3_ASSOC);
+    $currentuid = $row['id'];
 
-        $insertAvatarStmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
-        $insertAvatarStmt->execute();
-        $insertAvatarStmt->reset();
-    }
+    $insertAvatarStmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
+    $insertAvatarStmt->execute();
+    $insertAvatarStmt->reset();
 }
 
+$getcurcolorsstmt = $db->prepare("
+    SELECT id
+    FROM users 
+    WHERE authuuid = :cookie
+");
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $color_map = [
-        'head_color' => 'head',
-        'trso_color' => 'torso',
-        'lleg_color' => 'leftleg',
-        'rleg_color' => 'rightleg',
-        'larm_color' => 'leftarm',
-        'rarm_color' => 'rightarm'
-    ];
     if (isset($_POST['head_color'])) {
         $update_data = [];
         $valid_request = true;
@@ -142,16 +146,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
         $result = $stmt->execute();
         if ($result) {
-            $row = $result->fetchArray(SQLITE3_ASSOC);
-            if ($row) {
-                $head = array_search($row['head'],$brickcolor);
-                $torso = array_search($row['torso'],$brickcolor);
-                $leftarm = array_search($row['leftarm'],$brickcolor);
-                $rightarm = array_search($row['rightarm'],$brickcolor);
-                $leftleg = array_search($row['leftleg'],$brickcolor);
-                $rightleg = array_search($row['rightleg'],$brickcolor);
-                echo "<script>helloworld('console.log');</script>";
+            $bodyparts = [
+                "head" => $row['head'],
+                "trso" => $row['torso'],
+                "larm" => $row['leftarm'],
+                "rarm" => $row['rightarm'],
+                "lleg" => $row['leftleg'],
+                "rleg" => $row['rightleg']
+            ];
+            foreach ($bodyparts as $key => $value) {
+                echo $value;
             }
+            echo "<script>helloworld('console.log');</script>";
         }
         $user_data = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
         if (isset($stmt)) $stmt->close();
