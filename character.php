@@ -145,21 +145,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $avatarsdb->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
         $stmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
         $result = $stmt->execute();
+        $colorrow = $result ? $result->fetchArray(SQLITE3_ASSOC) : false; // source:http://genius.com/Ayesha-erotica-emo-boy-lyrics
+
         if ($result) {
             $bodyparts = [
-                "head" => $row['head'],
-                "trso" => $row['torso'],
-                "larm" => $row['leftarm'],
-                "rarm" => $row['rightarm'],
-                "lleg" => $row['leftleg'],
-                "rleg" => $row['rightleg']
+                "head" => $colorrow['head'],
+                "trso" => $colorrow['torso'],
+                "larm" => $colorrow['leftarm'],
+                "rarm" => $colorrow['rightarm'],
+                "lleg" => $colorrow['leftleg'],
+                "rleg" => $colorrow['rightleg']
             ];
+            
             foreach ($bodyparts as $key => $value) {
-                echo $value;
+                $c = array_search($value,$brickcolor);
+                echo "<script>addEventListener(\"DOMContentLoaded\", (event) => {const x = document.getElementById(\"$key\"); x.setAttribute(\"color\", $value); x.style.backgroundColor = \"#$c\"})</script>";
             }
-            echo "<script>helloworld('console.log');</script>";
         }
-        $user_data = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+        
         if (isset($stmt)) $stmt->close();
         if (isset($name)) $name->finalize();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
