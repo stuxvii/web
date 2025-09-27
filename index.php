@@ -67,6 +67,7 @@
         $colorrow = $result ? $result->fetchArray(SQLITE3_ASSOC) : false; // source:http://genius.com/Ayesha-erotica-emo-boy-lyrics
 
         if ($result) {
+            $bpdata = [];
             $bodyparts = [
                 "head" => $colorrow['head'],
                 "trso" => $colorrow['torso'],
@@ -75,12 +76,30 @@
                 "lleg" => $colorrow['leftleg'],
                 "rleg" => $colorrow['rightleg']
             ];
-            
-            foreach ($bodyparts as $key => $value) {
-                $c = array_search($value,$brickcolor);
-                echo "<script>addEventListener(\"DOMContentLoaded\", (event) => {const x = document.getElementById(\"$key\"); x.setAttribute(\"color\", $value); x.style.backgroundColor = \"#$c\"})</script>";
+            foreach ($bodyparts as $part => $sqlvalue) {
+                $color = $sqlvalue;
+                $hex = array_search($color, $brickcolor);
+                $bpdata[] = [
+                    'id' => $part,
+                    'hex' => $hex
+                ];
             }
-        }
+            $newjson = json_encode($bpdata);
+
+            echo "<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+const uc = $newjson;
+
+uc.forEach(colorobj => {
+    const i = colorobj.id;
+    const h = \"#\" + colorobj.hex;
+    const e = document.getElementById(i);
+    if (e) {
+        e.style.backgroundColor = h;
+    }
+})})
+            </script>";
+            }
         
         if (isset($stmt)) $stmt->close();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
@@ -143,19 +162,27 @@
             ?>
         </div>
         <?php
+        $aaaaaaaaaaaaamessage = null;
+        $dev = true;
         if (!isset($_COOKIE['auth'])) {
-            echo "<div class=\"btmmddl\" id=\"warningjoke\">
+            $aaaaaaaaaaaaamessage = "Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, firewalls extinguished, <br>your device set from airplane mode to car mode, and your car's ABS enabled.";
+        } else {
+            if ($dev) {
+            $aaaaaaaaaaaaamessage = "Website is currently in development. <br>Expect weird errors or things to suddenly change.";
+            }
+        }
+        if ($aaaaaaaaaaaaamessage == null) {return;}
+        echo "<div class=\"btmmddl\" id=\"warn\">
             <span style='background-color:red;cursor: url(\"cursors/chicken.cur\"), auto;' id=\"dumjokeclosebtn\">&nbsp;X </span>
-            <em style='text-align: center;'>Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, firewalls extinguished, <br>your device set from airplane mode to car mode, and your car's ABS enabled.</em>
+            <em style='text-align: center;'>$aaaaaaaaaaaaamessage</em>
         </div>
         <script>
             const a = document.getElementById(\"dumjokeclosebtn\");
-            const b = document.getElementById(\"warningjoke\");
+            const b = document.getElementById(\"warn\");
             a.addEventListener(\"click\", function(event) {
                 b.remove()
             })
         </script>";
-        }
         ?>
         <div class="btmrite">
             <?php

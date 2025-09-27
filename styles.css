@@ -69,7 +69,7 @@ img {
   position: absolute;
   left: 30%;
   right: 25%;
-  bottom: 0;
+  top: 0;
   padding: 5px;
 }
 .blockman {
