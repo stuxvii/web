@@ -26,8 +26,6 @@ body {
 }
 img {
     image-rendering: pixelated;
-    height:36px;
-    margin-right: 20px;
 }
 .info {
     background-color: black;
@@ -66,6 +64,13 @@ img {
   z-index: 1000;
   max-height: 100vh;
   overflow: auto;
+}
+.btmmddl {
+  position: absolute;
+  left: 30%;
+  right: 25%;
+  bottom: 0;
+  padding: 5px;
 }
 .blockman {
     display: flex;

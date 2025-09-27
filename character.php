@@ -29,7 +29,7 @@ $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1
 "C470A0" => 22, "CD6298" => 221, "898788" => 179, "E1A4C2" => 158, "E4ADC8" => 222, "E5ADC8" => 113, "E8BAC8" => 9, "DC9095" => 223, "7B2E2F" => 154];
 $currentuid = NULL;
 $avatarsdb = new SQLite3('avatars.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $row = NULL;
 $color_map = [
     'head_color' => 'head',
@@ -171,14 +171,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ?>
             <div class="charborder">
                 <div id="char">
-                    <span class="bodypart" id="head" color="101"></span>
-                    <span class="bodypart limb" id="lleg" color="962"></span>
-                    <span class="bodypart limb" id="rleg" color="962"></span>
-                    <span class="bodypart limb" id="larm" color="101"></span>
-                    <span class="bodypart" id="trso" color="333"></span>
-                    <span class="bodypart limb" id="rarm" color="101"></span>
+                    <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"><img src="images/epicface.png" width='56' height='56'></span>
+                    <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+                    <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+                    <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+                    <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
+                    <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
                     <div class="btmleft">
-                        <span id="whatdiduselect">head</span>
+                        <?php
+                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                            echo "<span id=\"whatdiduselect\">Saved!</span>";
+                        } else {
+                        echo "<span id=\"whatdiduselect\">head</span>";}
+                        ?>
                         <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                             <input type="submit" value="Save">
                         </form>

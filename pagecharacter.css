@@ -1,0 +1,47 @@
+
+.bodypart {
+    position: absolute;
+    border: 3px solid #000;
+    background-color: #fff;
+}
+.char {
+    position:absolute;
+    bottom: 32%;
+}
+.limb {
+    height: 3.6em;
+    width: 1.5em;
+}
+#head {
+    height: 2.1em;
+    width: 2.1em;
+    top: 0px;
+    left: 70px;
+}
+
+#trso {
+    height: 3.6em;
+    width: 3.8em;
+    top: 60px;
+    left: 50px;
+}
+
+#larm {
+    top: 60px;
+    left: 5px;
+}
+
+#rarm {
+    top: 60px;
+    left: 155px;
+}
+
+#lleg {
+    top: 160px;
+    left: 55px;
+}
+
+#rleg {
+    top: 160px;
+    left: 105px;
+}
