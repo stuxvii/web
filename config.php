@@ -114,7 +114,7 @@ $dispchar = (bool)$prefrow['dispchar'];
         ?>
     </head>
     <body>
-        <div class="divaleft">
+        <div class="diva">
             <em>For your convinenience, <br>these settings persist across devices.</em>
             <form id="plrform" method="post" action="<?php echo htmlspecialchars("config");?>">
                 <hr>

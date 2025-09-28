@@ -189,9 +189,7 @@ $dispchar = (bool)$colorrow['dispchar'];
         <?php
         $aaaaaaaaaaaaamessage = null;
         $dev = true;
-        if (!$loggedin) {
-            $aaaaaaaaaaaaamessage = "Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, walls lit on fire, <br>your device set from airplane mode to car mode, and your car's ABS enabled.";
-        } else { 
+        if ($loggedin) {
             if ($dispchar) {
                 echo "<div class=\"char\"><span class=\"bodypart\" id=\"head\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"><img src=\"images/epicface.png\" width='56' height='56'></span>
                 <span class=\"bodypart limb\" id=\"lleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>

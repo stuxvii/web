@@ -7,90 +7,164 @@ if (!preg_match('/^[0-9a-f]{32}$/', $token)) {
     header("Location: logout.php");
     exit;
 }
+
 $currentuid = NULL;
+$curpasshash = NULL;
 $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $row = NULL;
-$db->exec("
-CREATE TABLE IF NOT EXISTS config (
-    id INTEGER PRIMARY KEY,
-    appearance BOOLEAN,
-    movingbg BOOLEAN,
-    sidebarid INTEGER,
-    sidebars BOOLEAN
-)");
+$stmt = $db->prepare("
+    SELECT id,pass
+    FROM users 
+    WHERE authuuid = :cookie
+");
 
-$msg = "";
-$cc = 0;
-$theme = false;
-$movebg = false;
-$dispchar = false;
+$stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
+$name = $stmt->execute();
+$usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
+
+if ($name) {
+    $row = $name->fetchArray(SQLITE3_ASSOC);
+    $currentuid = $row['id'];
+    $curpasshash = $row['pass'];
+}
+$fetchsettings = $db->prepare("
+SELECT appearance,movingbg,dispchar,sidebarid,sidebars
+FROM config
+WHERE id = :uid");
+
+$fetchsettings->bindValue(":uid",$currentuid,SQLITE3_INTEGER);
+$settings = $fetchsettings->execute();
+$colorrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
+
+$theme = (bool)$colorrow['appearance'];
+$movebg = (bool)$colorrow['movingbg'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['thememode'])) {
-        if ($_POST['thememode'] == "light") {
-            $theme = true;
-            $cc += 1;
+    if (password_verify(!$_POST['confirm'],$curpasshash)) {die();}
+    if (isset($_POST['username'])) {
+
+        $newusername = trim($_POST['username']);
+        if (preg_match($usernamevalidateregex,$newusername)){
+            $msg = "$newusername was valid. proceed with the rest";
+            
+            $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = :un");
+            $stmtcheckusername->bindValue(':un', $newusername, SQLITE3_TEXT);
+            $result = $stmtcheckusername->execute();
+            
+            if ($result) {
+                $row = $result->fetchArray(SQLITE3_ASSOC);
+                $user_count = $row['count'];
+            } else {
+                echo error("Internal error while checking username.");
+                return;
+            }
+
+            if ($user_count > 0) {
+                echo error("The username '$newusername' is already taken.");
+            } else {
+                
+                $updstmt = $db->prepare("
+                    UPDATE users 
+                    SET 
+                        username = :newuser
+                    WHERE authuuid = :cookie
+                ");
+                
+                $updstmt->bindValue(':newuser', $newusername, SQLITE3_TEXT);
+                $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+                $updstmt->execute();
+                $rowsaffected = $db->changes();
+
+                if ($rowsaffected > 0) {
+                    header("Location: logout.php"); // succ
+                    exit;
+                } else {
+                    echo error("Internal error.<br><em>report to<br>dev plox</em>");
+                }
+            }
         } else {
-            $theme = false;
-            $cc += 1;
+            $msg = password_verify(!$_POST['confirm'],$curpasshash);
         }
     }
-    if (isset($_POST['movingbg'])) {
-        if ($_POST['movingbg']) {
-            $movebg = true;
-            $cc += 1;
-        }
-    }
-    if (isset($_POST['displaychar'])) {
-        if ($_POST['displaychar']) {
-            $dispchar = true;
-            $cc += 1;
-        }
-    }
+
 }
-if ($cc>0) {$msg = "$cc changes have been made.";}
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" href="../normalize.css">
         <link rel="stylesheet" href="../styles.css">
+        <?php
+            if ($theme) {
+                echo "<style>:root{--primary-color: #fff;--secondary-color: #000;--bgimg: url(\"cargonetlight.bmp\");}</style>";
+            }
+            if (!$movebg) {
+                echo "<style>body{animation-name: none;}</style>";
+            }
+        ?>
     </head>
     <body>
         <div class="divaleft">
-            <form id="plrform" method="post" action="<?php echo htmlspecialchars("config");?>">
+            <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>">
+                <span>New username</span>
                 <hr>
-                <span>Appearance</span>
-                <hr>
-                <input type="radio" id="light" name="thememode" value="light">
-                <label for="brightness">Light mode</label>
+                <input type="username" id="username" name="username" maxlength="20">
                 <br>
-                <input type="radio" id="dark" name="thememode" value="dark">
-                <label for="brightness">Dark mode</label>
-                <hr>
-                <span>Site preferences</span>
-                <hr>
-                <input type="checkbox" id="movingbg" name="movingbg" checked>
-                <label for="brightness">Moving background</label>
+                (3-20 chars, a-z/0-9/_)
                 <br>
-                <input type="checkbox" id="displaychar" name="displaychar">
-                <label for="brightness">Display your <br> character in the <br> main page</label>
-                <hr>
-                <span>Account management</span>
-                <hr>
-                <a href="">Change username</a> // unfinished
                 <br>
-                <a href="">Change password</a> // unfinished
+                <span>New password</span>
+                <hr>
+                <input type="password" id="password" name="password">
                 <br>
-                <a href="">Erase account</a> // unfinished
+                (15 characters minimum)
+                <br>
+                <br>
+                <br>
+                Changing your credentials <br>is going to log you out &
+                <br>
+                force you to log back in.
                 <br><br>
-                <input type="submit" value="Save"> <?php echo $msg; ?>
+                Use your current password <br>to authorize any changes.
+                <hr>
+                <br>
+                <span>Password confirmation</span>
+                <br>
+                <input type="password" id="confirm" name="confirm">
+                <br>
+                <br>
+                <input type="submit" value="Change"> 
+                <br>
+                <?php echo $msg; ?>
             </form>
+        </div>
+        <div class="divaright">
+            <div>
+                Danger zone
+                <hr>
+                This section makes the option of 
+                <br>
+                permanently erasing your
+                <br>
+                account available to you.
+                <br>
+                <br>
+                This process is completely irreversible, 
+                <br>
+                and once activated is unable to be reverted.
+                <br>
+                <br>
+                You will be asked twice before 
+                <br>
+                your account is permanently wiped.
+                <br>
+                <br>
+                <input type="submit" value="Delete your account">
+            </div>
         </div>
         <?php
         $currentuid = null;
         $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-        $avatarsdb = new SQLite3('avatars.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
         
         $stmt = $db->prepare("
             SELECT id
@@ -107,7 +181,6 @@ if ($cc>0) {$msg = "$cc changes have been made.";}
         }
         if (isset($stmt)) $stmt->close();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
-        $avatarsdb->close();
         $db->close();
         ?>
         </div>
