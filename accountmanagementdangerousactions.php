@@ -40,8 +40,13 @@ $theme = (bool)$colorrow['appearance'];
 $movebg = (bool)$colorrow['movingbg'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (password_verify(!$_POST['confirm'],$curpasshash)) {die();}
-    if (isset($_POST['username'])) {
+    $candoaction = false;
+    if (!password_verify($_POST['confirm'],$curpasshash)) {
+        $msg = "The password you <br>inputted was incorrect.";
+    } else {
+        $candoaction=true;
+    }
+    if (isset($_POST['username']) && $candoaction) {
 
         $newusername = trim($_POST['username']);
         if (preg_match($usernamevalidateregex,$newusername)){
