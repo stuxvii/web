@@ -41,7 +41,7 @@ $movebg = (bool)$colorrow['movingbg'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $candoaction = false;
-    if (!password_verify($_POST['confirm'],$curpasshash)) {
+    if (!password_verify($_POST['confirm'],$curpasshash)) { //fixed
         $msg = "The password you <br>inputted was incorrect.";
     } else {
         $candoaction=true;
@@ -157,6 +157,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 This process is completely irreversible, 
                 <br>
                 and once activated is unable to be reverted.
+                <br>
+                <br>
+                Only do this if you wish to fully
+                <br>
+                abandon the service, as you wont be let back in.
                 <br>
                 <br>
                 You will be asked twice before 

@@ -122,8 +122,7 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
                     <br>
                     <br>
                     Discord: <br>
-                    <input type="text" name="discord">
-                    <br>
+                    <div style="position:relative; right:0.84em;"><span style="font-size:1.4em;">@</span><input type="text" name="discord"></div>
                     (for contacting)
                     <br>                   
                     <br>
