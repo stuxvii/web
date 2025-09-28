@@ -46,31 +46,44 @@ img {
     transform: translate(-50%, -50%);
     max-height: 1000px;
 }
+.divaleft {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    text-align: left;
+    left: 50%;  
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    max-height: 1000px;
+}
 
 .btmleft {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  padding: 10px;
-  z-index: 1000;
-  max-height: 100vh;
-  overflow: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 10px;
+    z-index: 1000;
+    overflow: auto;
 }
 .btmrite {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  padding: 10px;
-  z-index: 1000;
-  max-height: 100vh;
-  overflow: auto;
+    position: fixed;
+    display:flex;
+    text-align: right;
+    flex-direction: column;
+    bottom: 0;
+    right: 0;
+    padding: 10px;
+    z-index: 1000;
+    max-height: 100vh;
+    overflow: auto;
 }
-.btmmddl {
-  position: absolute;
-  left: 30%;
-  right: 25%;
-  top: 0;
-  padding: 5px;
+.warn {
+    position: absolute;
+    left: 30%;
+    right: 25%;
+    top: 0;
+    padding: 5px;
 }
 .blockman {
     display: flex;
@@ -88,11 +101,17 @@ img {
     flex-direction: row;
     max-height: 1000px;
 }
+label {
+    padding:0px;
+    margin:0px;
+}
 input{
+    padding:0px;
+    margin:0px;
     font-size: 1em;
     font-family: monospace;
 }
-input{
+input[type="submit"], [type="color"]{
     -webkit-appearance: none;
     appearance: none;
     color: white;

@@ -3,7 +3,7 @@ const charbody = document.getElementById("char");
 const mousestt = document.getElementById("mousestate");
 const bdpartstt = document.getElementById("whatdiduselect");
 const clrstt = document.getElementById("colorstuff");
-var bodypart = "head";
+var bodypart = "";
 let pickingcolor = false;
 
 function updcolor(event) {

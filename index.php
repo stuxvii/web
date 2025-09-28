@@ -14,14 +14,17 @@
     <body>
         <div class="diva">
         <?php
+        $loggedin = false;
         if (!isset($_COOKIE['auth'])) {
             echo "<a href=\"login.php\">Login</a>
             <a href=\"register.php\">Register</a>";
+            $loggedin = false;
         }
         if (isset($_COOKIE['auth'])) {
-            echo "<a href=\"https://windows93.net/https://windows93.net/c/programs/acidBox93/\">acidBox93 (LOUD AUDIO)</a>
+            echo "<a href=\"https://windows93.net/c/programs/acidBox93/\">acidBox93 (LOUD AUDIO)</a>
             <a href=\"character.php\">character customization</a>
             <a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
+            $loggedin = true;
         }
         $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1001, "EDEAEA" => 348, "E9DADA" => 349, "FFC9C9" => 1025, "FF9494" => 337, "965555" => 344, 
         "A34B4B" => 1007, "883E3E" => 350, "562424" => 339, "FF5959" => 331, "750000" => 332, "970000" => 327, "FF0000" => 1004, "966766" => 360, "BE6862" => 338, "957977" => 153, 
@@ -86,19 +89,7 @@
             }
             $newjson = json_encode($bpdata);
 
-            echo "<script>
-document.addEventListener('DOMContentLoaded', (event) => {
-const uc = $newjson;
-
-uc.forEach(colorobj => {
-    const i = colorobj.id;
-    const h = \"#\" + colorobj.hex;
-    const e = document.getElementById(i);
-    if (e) {
-        e.style.backgroundColor = h;
-    }
-})})
-            </script>";
+            echo "<script>document.addEventListener(\"DOMContentLoaded\",e=>{let t=$newjson;t.forEach(e=>{let t=e.id,d=\"#\"+e.hex,n=document.getElementById(t);n&&(n.style.backgroundColor=d)})});</script>";
             }
         
         if (isset($stmt)) $stmt->close();
@@ -107,14 +98,6 @@ uc.forEach(colorobj => {
         $db->close();
         ?>
         </div>
-            <div class="char">
-                <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"><img src="images/epicface.png" width='56' height='56'></span>
-                <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-                <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-                <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
-                <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-            </div>
         <div class="btmleft">
             <?php
             const logout = 'logout.php';
@@ -126,8 +109,8 @@ uc.forEach(colorobj => {
                 error_log("Database connection failed: " . $e->getMessage());
                 exit("Database connection error.");
             }
-            if (isset($_COOKIE['auth'])) {
-                $authCookie = $_COOKIE['auth'];
+            if ($loggedin) {
+                $authcookie = $_COOKIE['auth'];
 
                 $stmt = $db->prepare("
                     SELECT username,discordtag
@@ -136,14 +119,14 @@ uc.forEach(colorobj => {
                     LIMIT 1
                 ");
                 
-                $stmt->bindValue(':cookie', $authCookie, SQLITE3_TEXT);
+                $stmt->bindValue(':cookie', $authcookie, SQLITE3_TEXT);
                 
                 $result = $stmt->execute();
 
                 if ($result) {
                     $row = $result->fetchArray(SQLITE3_ASSOC);
                     if ($row) {
-                        echo "<br>Hey there, " . $row['username'] . " (@" . $row['discordtag'] . ")";
+                        echo "<span class='username'><br>Hey there, " . $row['username'] . " (@" . $row['discordtag'] . ")</span>";
                     } else {
                         header("Location: " . logout);
                         exit();
@@ -161,18 +144,23 @@ uc.forEach(colorobj => {
             }
             ?>
         </div>
+        </div>
         <?php
         $aaaaaaaaaaaaamessage = null;
         $dev = true;
-        if (!isset($_COOKIE['auth'])) {
-            $aaaaaaaaaaaaamessage = "Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, firewalls extinguished, <br>your device set from airplane mode to car mode, and your car's ABS enabled.";
+        if (!$loggedin) {
+            $aaaaaaaaaaaaamessage = "Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, walls lit on fire, <br>your device set from airplane mode to car mode, and your car's ABS enabled.";
         } else {
-            if ($dev) {
+            echo "<div class=\"char\"><span class=\"bodypart\" id=\"head\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"><img src=\"images/epicface.png\" width='56' height='56'></span>
+            <span class=\"bodypart limb\" id=\"lleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
+            <span class=\"bodypart limb\" id=\"rleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
+            <span class=\"bodypart limb\" id=\"larm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span>
+            <span class=\"bodypart\" id=\"trso\" color=\"23\" style=\"background-color: rgb(13, 105, 172);\"></span>
+            <span class=\"bodypart limb\" id=\"rarm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span></div>";
             $aaaaaaaaaaaaamessage = "Website is currently in development. <br>Expect weird errors or things to suddenly change.";
-            }
         }
         if ($aaaaaaaaaaaaamessage == null) {return;}
-        echo "<div class=\"btmmddl\" id=\"warn\">
+        echo "<div class=\"warn\" id=\"warn\">
             <span style='background-color:red;cursor: url(\"cursors/chicken.cur\"), auto;' id=\"dumjokeclosebtn\">&nbsp;X </span>
             <em style='text-align: center;'>$aaaaaaaaaaaaamessage</em>
         </div>
@@ -187,7 +175,9 @@ uc.forEach(colorobj => {
         <div class="btmrite">
             <?php
             if (isset($_COOKIE['auth'])) {
+                echo "<a href=\"config.php\">Settings</a>";
                 echo "<a href=\"logout.php\">Log out</a>";
+                echo "<a href=\"https://discord.gg/7JwYGHAvJV\">Official Discord server</a>";
             }
             ?>
         </div>

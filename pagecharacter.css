@@ -5,8 +5,8 @@
     background-color: #fff;
 }
 .char {
-    position:absolute;
-    bottom: 32%;
+    position:fixed;
+    bottom:12em;
 }
 .limb {
     height: 3.6em;
