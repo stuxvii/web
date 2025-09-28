@@ -1,7 +1,12 @@
-c/
-gallery/
-*.log
-favicon.ico
-*.txt
-*.db
-.htaccess
+.htaccess 
+# you may be running another http server asides from apache
+favicon.ico 
+# get ur own favicon
+*.log 
+# file gend by server
+*.txt 
+# file gend by server
+*.db 
+# file gend by server
+*~ 
+# krita

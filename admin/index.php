@@ -1,4 +1,10 @@
 <?php
+$token = $_COOKIE['auth'] ? '' : false;
+if (!preg_match('/^[0-9a-f]{64}$/', $token) && !$token == false) {
+    header("Location: logout.php");
+    exit;
+}
+
 function exceptions_error_handler($severity, $message, $filename, $lineno) {
     throw new ErrorException($message, 0, $severity, $filename, $lineno);
 }

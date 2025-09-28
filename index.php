@@ -1,9 +1,52 @@
+<?php
+$token = $_COOKIE['auth'] ? '' : false;
+if (!preg_match('/^[0-9a-f]{64}$/', $token) && !$token == false) {
+    header("Location: logout.php");
+    exit;
+}
+
+$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+$stmt = $db->prepare("
+    SELECT id
+    FROM users 
+    WHERE authuuid = :cookie
+");
+
+$stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
+$name = $stmt->execute();
+
+if ($name) {
+    $row = $name->fetchArray(SQLITE3_ASSOC);
+    $currentuid = $row['id'];
+}
+$fetchsettings = $db->prepare("
+SELECT appearance,movingbg,dispchar,sidebarid,sidebars
+FROM config
+WHERE id = :uid");
+
+$fetchsettings->bindValue(":uid",$currentuid,SQLITE3_INTEGER);
+$settings = $fetchsettings->execute();
+$colorrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
+
+$theme = (bool)$colorrow['appearance'];
+$movebg = (bool)$colorrow['movingbg'];
+$dispchar = (bool)$colorrow['dispchar'];
+
+?>
 <!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" href="../normalize.css">
         <link rel="stylesheet" href="../pagecharacter.css">
         <link rel="stylesheet" href="../styles.css">
+        <?php
+            if ($theme) {
+                echo "<style>:root{--primary-color: #fff;--secondary-color: #000;--bgimg: url(\"cargonetlight.bmp\");}</style>";
+            }
+            if (!$movebg) {
+                echo "<style>body{animation-name: none;}</style>";
+            }
+        ?>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Orbitron:wght@400..900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap'); 
             .mwrtng {
@@ -16,13 +59,13 @@
         <?php
         $loggedin = false;
         if (!isset($_COOKIE['auth'])) {
-            echo "<a href=\"login.php\">Login</a>
-            <a href=\"register.php\">Register</a>";
+            echo "<a href=\"login\">Login</a>
+            <a href=\"register\">Register</a>";
             $loggedin = false;
         }
         if (isset($_COOKIE['auth'])) {
             echo "<a href=\"https://windows93.net/c/programs/acidBox93/\">acidBox93 (LOUD AUDIO)</a>
-            <a href=\"character.php\">character customization</a>
+            <a href=\"character\">character customization</a>
             <a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
             $loggedin = true;
         }
@@ -49,7 +92,6 @@
         "C470A0" => 22, "CD6298" => 221, "898788" => 179, "E1A4C2" => 158, "E4ADC8" => 222, "E5ADC8" => 113, "E8BAC8" => 9, "DC9095" => 223, "7B2E2F" => 154];
         $currentuid = null;
         $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-        $avatarsdb = new SQLite3('avatars.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
         
         $stmt = $db->prepare("
             SELECT id
@@ -64,7 +106,7 @@
             $row = $name->fetchArray(SQLITE3_ASSOC);
             $currentuid = $row['id'];
         }
-        $stmt = $avatarsdb->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
+        $stmt = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
         $stmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
         $result = $stmt->execute();
         $colorrow = $result ? $result->fetchArray(SQLITE3_ASSOC) : false; // source:http://genius.com/Ayesha-erotica-emo-boy-lyrics
@@ -94,7 +136,6 @@
         
         if (isset($stmt)) $stmt->close();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
-        $avatarsdb->close();
         $db->close();
         ?>
         </div>
@@ -113,7 +154,7 @@
                 $authcookie = $_COOKIE['auth'];
 
                 $stmt = $db->prepare("
-                    SELECT username,discordtag
+                    SELECT username,discordtag,id
                     FROM users 
                     WHERE authuuid = :cookie
                     LIMIT 1
@@ -126,7 +167,7 @@
                 if ($result) {
                     $row = $result->fetchArray(SQLITE3_ASSOC);
                     if ($row) {
-                        echo "<span class='username'><br>Hey there, " . $row['username'] . " (@" . $row['discordtag'] . ")</span>";
+                        echo "<span class='username'><br>Hey there, " . $row['username'] . " (@" . $row['discordtag'] . ")" . " (UserID: " . $row['id'] . ")" . "</span>";
                     } else {
                         header("Location: " . logout);
                         exit();
@@ -150,13 +191,15 @@
         $dev = true;
         if (!$loggedin) {
             $aaaaaaaaaaaaamessage = "Website best experienced on a 1920x1080 desktop using <br>ungoogled-chromium with uMatrix installed, walls lit on fire, <br>your device set from airplane mode to car mode, and your car's ABS enabled.";
-        } else {
-            echo "<div class=\"char\"><span class=\"bodypart\" id=\"head\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"><img src=\"images/epicface.png\" width='56' height='56'></span>
-            <span class=\"bodypart limb\" id=\"lleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
-            <span class=\"bodypart limb\" id=\"rleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
-            <span class=\"bodypart limb\" id=\"larm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span>
-            <span class=\"bodypart\" id=\"trso\" color=\"23\" style=\"background-color: rgb(13, 105, 172);\"></span>
-            <span class=\"bodypart limb\" id=\"rarm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span></div>";
+        } else { 
+            if ($dispchar) {
+                echo "<div class=\"char\"><span class=\"bodypart\" id=\"head\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"><img src=\"images/epicface.png\" width='56' height='56'></span>
+                <span class=\"bodypart limb\" id=\"lleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
+                <span class=\"bodypart limb\" id=\"rleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
+                <span class=\"bodypart limb\" id=\"larm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span>
+                <span class=\"bodypart\" id=\"trso\" color=\"23\" style=\"background-color: rgb(13, 105, 172);\"></span>
+                <span class=\"bodypart limb\" id=\"rarm\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\"></span></div>";
+            }
             $aaaaaaaaaaaaamessage = "Website is currently in development. <br>Expect weird errors or things to suddenly change.";
         }
         if ($aaaaaaaaaaaaamessage == null) {return;}
@@ -175,8 +218,8 @@
         <div class="btmrite">
             <?php
             if (isset($_COOKIE['auth'])) {
-                echo "<a href=\"config.php\">Settings</a>";
-                echo "<a href=\"logout.php\">Log out</a>";
+                echo "<a href=\"config\">Settings</a>";
+                echo "<a href=\"logout\">Log out</a>";
                 echo "<a href=\"https://discord.gg/7JwYGHAvJV\">Official Discord server</a>";
             }
             ?>

@@ -5,6 +5,11 @@ if (!isset($_COOKIE['auth'])) {
     header("Location: index.php");
     return;
 }
+$token = $_COOKIE['auth'] ? '' : false;
+if (!preg_match('/^[0-9a-f]{64}$/', $token) && !$token == false) {
+    header("Location: logout.php");
+    exit;
+}
 
 $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1001, "EDEAEA" => 348, "E9DADA" => 349, "FFC9C9" => 1025, "FF9494" => 337, "965555" => 344, 
 "A34B4B" => 1007, "883E3E" => 350, "562424" => 339, "FF5959" => 331, "750000" => 332, "970000" => 327, "FF0000" => 1004, "966766" => 360, "BE6862" => 338, "957977" => 153, 
@@ -28,7 +33,6 @@ $brickcolor = ["111111" => 1003, "CDCDCD" => 1002, "ECECEC" => 40, "F8F8F8" => 1
 "AA00AA" => 1015, "8E4285" => 198, "A75E9B" => 321, "635F62" => 199, "FF00BF" => 1032, "923978" => 124, "FF66CC" => 1016, "D490BD" => 343, "FF98DC" => 330, "E0B2D0" => 342, 
 "C470A0" => 22, "CD6298" => 221, "898788" => 179, "E1A4C2" => 158, "E4ADC8" => 222, "E5ADC8" => 113, "E8BAC8" => 9, "DC9095" => 223, "7B2E2F" => 154];
 $currentuid = NULL;
-$avatarsdb = new SQLite3('avatars.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $row = NULL;
 $color_map = [
@@ -39,7 +43,7 @@ $color_map = [
     'larm_color' => 'leftarm',
     'rarm_color' => 'rightarm'
 ];
-$avatarsdb->exec("
+$db->exec("
 CREATE TABLE IF NOT EXISTS avatars (
     id INTEGER PRIMARY KEY,
     head INTEGER,
@@ -50,7 +54,7 @@ CREATE TABLE IF NOT EXISTS avatars (
     rightleg INTEGER
 )");
 
-$insertAvatarStmt = $avatarsdb->prepare("
+$insertAvatarStmt = $db->prepare("
     INSERT OR IGNORE INTO avatars (id) VALUES (:uid)
 ");
 
@@ -108,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $sql_set = implode(', ', $set_clauses);
         $sql = "UPDATE avatars SET $sql_set WHERE id = :id";
-        $stmt = $avatarsdb->prepare($sql);
+        $stmt = $db->prepare($sql);
         foreach ($update_data as $db_column => $value) {
             $stmt->bindValue(":$db_column", $value, SQLITE3_INTEGER);
         }
@@ -124,9 +128,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
     <head>
         <link rel="stylesheet" href="../animate.min.css">
-        <link rel="stylesheet" href="../styles.css">
         <link rel="stylesheet" href="../normalize.css">
-        <link rel="stylesheet" href="../character.css">
+        <link rel="stylesheet" href="../styles.css">
     </head>
     <body>
         <em>tip: hold your mouse button over the color table</em>
@@ -142,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
         <?php
-        $stmt = $avatarsdb->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
+        $stmt = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
         $stmt->bindValue(':uid', $currentuid, SQLITE3_INTEGER);
         $result = $stmt->execute();
         $colorrow = $result ? $result->fetchArray(SQLITE3_ASSOC) : false; // source:http://genius.com/Ayesha-erotica-emo-boy-lyrics
@@ -166,7 +169,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($stmt)) $stmt->close();
         if (isset($name)) $name->finalize();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
-        $avatarsdb->close();
         $db->close();
         ?>
             <div class="charborder">
@@ -182,9 +184,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             echo "<span id=\"whatdiduselect\">Saved!</span>";
                         } else {
-                        echo "<span id=\"whatdiduselect\">head</span>";}
+                        echo "<span id=\"whatdiduselect\">click<br>guy</span>";}
                         ?>
-                        <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+                        <form id="plrform" method="post" action="<?php echo htmlspecialchars("character");?>">
                             <input type="submit" value="Save">
                         </form>
                     </div>

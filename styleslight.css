@@ -1,0 +1,142 @@
+@keyframes movebg {
+    0% {
+        background-position: right 0px bottom 0px;
+    }
+
+    100% {
+        background-position: right -128px bottom -128px;
+    }
+}
+html {
+    cursor: url('cursors/kangel.cur'), auto;
+}
+body {
+    background-image: url("cargonetlight.bmp");
+    image-rendering: pixelated;
+    background-position: center;
+    background-color: #fff;
+    color: black;
+    font-size: 2em;
+    font-family: monospace;
+    animation-name: movebg;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    overflow: hidden;
+}
+img {
+    image-rendering: pixelated;
+}
+.info {
+    background-color: white;
+    border: 1px solid black;
+    padding: 1px;
+    font-weight: bolder;
+    color: black;
+    -webkit-text-stroke-color: gray;
+    -webkit-text-stroke: 1px;
+}
+.diva {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    left: 50%;  
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    max-height: 1000px;
+}
+.divaleft {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    text-align: left;
+    left: 50%;  
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    max-height: 1000px;
+}
+
+.btmleft {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 10px;
+    z-index: 1000;
+    overflow: auto;
+}
+.btmrite {
+    position: fixed;
+    display:flex;
+    text-align: right;
+    flex-direction: column;
+    bottom: 0;
+    right: 0;
+    padding: 10px;
+    z-index: 1000;
+    max-height: 100vh;
+    overflow: auto;
+}
+.warn {
+    position: absolute;
+    left: 30%;
+    right: 25%;
+    top: 0;
+    padding: 5px;
+}
+.blockman {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.buttons {
+    display: flex;
+    flex-direction: row;
+    font-family: monospace;
+}
+.msgbox {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    max-height: 1000px;
+}
+label {
+    padding:0px;
+    margin:0px;
+}
+input{
+    padding:0px;
+    margin:0px;
+    font-size: 1em;
+    font-family: monospace;
+}
+input[type="submit"], [type="color"]{
+    -webkit-appearance: none;
+    appearance: none;
+    color: black;
+    border: 1px solid black;
+    background: white;
+    cursor: url('cursors/chicken.cur'), auto;
+}
+button {
+    background-color: white;
+    color: black;
+    font-size: 1em;
+    font-family: monospace;
+    border: 1px solid black;
+    cursor: url('cursors/chicken.cur'), auto;
+}
+em {
+    font-size: 0.67em;
+    padding: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+}
+a {
+    color:black;
+}
+a:visited {
+    color:black;
+}
