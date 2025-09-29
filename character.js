@@ -1,8 +1,6 @@
 const colorpicker = document.getElementById("colorpicker");
 const charbody = document.getElementById("char");
-const mousestt = document.getElementById("mousestate");
 const bdpartstt = document.getElementById("whatdiduselect");
-const clrstt = document.getElementById("colorstuff");
 var bodypart = "";
 let pickingcolor = false;
 
@@ -33,9 +31,10 @@ document.addEventListener("mouseup", function() {
 
 charbody.addEventListener("click", function(event) {
     const spanel = event.target;
-    if (spanel.nodeName == "SPAN") {
-        bodypart = spanel.getAttribute("id");
-        console.log(bodypart)
+    if (spanel.nodeName == "SPAN" || spanel.closest('.bodypart')) {
+        const partElement = spanel.nodeName == "SPAN" ? spanel : spanel.closest('.bodypart');
+        bodypart = partElement.getAttribute("id");
+        console.log(bodypart);
         switch(bodypart) {
             case "head":
                 bdpartstt.innerHTML = "head";
@@ -60,20 +59,67 @@ charbody.addEventListener("click", function(event) {
     }
 });
 
-document.getElementById('plrform').addEventListener('submit', function(event) {
-    const form = this;
+document.getElementById('saveButton').addEventListener('click', function(e) {
     const bodyparts = document.querySelectorAll('#char .bodypart');
-    console.log(bodypart);
+    const formData = new URLSearchParams();
+    
+    formData.append('is_ajax_save', '1');
+
     bodyparts.forEach(function(part) {
         const id = part.id;
         const color = part.getAttribute('color');
-
+        
         if (id && color) {
-            const hiddeninpt = document.createElement('input');
-            hiddeninpt.type = 'hidden';
-            hiddeninpt.name = id + '_color';
-            hiddeninpt.value = color;
-            form.appendChild(hiddeninpt);
+            formData.append(id + '_color', color);
         }
     });
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', window.location.href, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            bdpartstt.innerHTML = xhr.responseText; 
+            setTimeout(() => {
+                if (bdpartstt.innerHTML === 'Saved!') {
+                    bdpartstt.innerHTML = 'click<br>guy';
+                }
+            }, 3000); 
+        } else {
+            bdpartstt.innerHTML = 'Error saving: ' + xhr.status;
+            console.error('Save failed:', xhr.responseText);
+        }
+    };
+
+    xhr.onerror = function() {
+        bdpartstt.innerHTML = 'Network Error';
+    };
+
+    xhr.send(formData.toString());
 });
+
+
+function render() {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("render").src = this.responseText + "?t=" + new Date().getTime();
+            console.log(this.responseText);
+        }
+    };
+
+    let data = {};
+    const bodyparts = document.querySelectorAll('#char .bodypart');
+
+    bodyparts.forEach(function(part) {
+        const id = part.id;
+        const color = part.getAttribute('color');
+        
+        data[id] = color;
+    });
+    console.log("Requesting render...");
+    xmlhttp.open("POST", "render.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/json"); 
+    xmlhttp.send(JSON.stringify(data));
+}

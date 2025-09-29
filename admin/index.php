@@ -1,5 +1,5 @@
 <?php
-require_once 'auth.php';
+require_once '../auth.php';
 
 function exceptions_error_handler($severity, $message, $filename, $lineno) {
     throw new ErrorException($message, 0, $severity, $filename, $lineno);
@@ -21,7 +21,7 @@ function percentloadavg(){ // https://www.php.net/manual/en/function.sys-getload
     return $sys_getloadavg;
 }
 
-$allowed = false;
+$allowed = ($opperms) ? true : false;
 $new_key = 'failed to gen key there is no key you dingus';
 $dbpath = "../keys.db";
 $requestedprev = false;

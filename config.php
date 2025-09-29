@@ -1,32 +1,5 @@
 <?php
-$token = $_COOKIE['auth'] ?? '';
-if (!isset($token)) {
-    header("Location: index.php");
-}
-if (!preg_match('/^[0-9a-f]{32}$/', $token)) {
-    header("Location: logout.php");
-    exit;
-}
-$currentuid = NULL;
-$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-
-$stmt = $db->prepare("
-    SELECT id
-    FROM users 
-    WHERE authuuid = :cookie
-");
-
-$stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
-$name = $stmt->execute();
-
-if ($name) {
-    $row = $name->fetchArray(SQLITE3_ASSOC);
-    $currentuid = $row['id'];
-}
-if ($currentuid == NULL) {
-    header("Location: logout.php");
-    exit;
-}
+require_once "auth.php";
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS config (
@@ -45,63 +18,50 @@ $newconf->bindValue(':uid', $currentuid, SQLITE3_TEXT);
 $ncresult = $newconf->execute();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $cc = 0;
-
     $theme = false;
     $movebg = false;
     $dispchar = false;
+    $sidebars = false;
     if (isset($_POST['thememode'])) {
         if ($_POST['thememode'] == "light") {
             $theme = true;
-            $cc += 1;
         } else {
             $theme = false;
-            $cc += 1;
         }
     }
     if (isset($_POST['movingbg'])) {
         if ($_POST['movingbg']) {
             $movebg = true;
-            $cc += 1;
         }
     }
     if (isset($_POST['displaychar'])) {
         if ($_POST['displaychar']) {
             $dispchar = true;
-            $cc += 1;
         }
     }
-
+    if (isset($_POST['sidebars'])) {
+        if ($_POST['sidebars']) {
+            $sidebars = true;
+        }
+    }
     $updstmt = $db->prepare("
     UPDATE config 
     SET 
         appearance = :a,
         movingbg = :b,
-        dispchar = :c
+        dispchar = :c,
+        sidebars = :d
     WHERE id = :id
     ");
     $updstmt->bindValue(':a', (int)$theme, SQLITE3_INTEGER);
     $updstmt->bindValue(':b', (int)$movebg, SQLITE3_INTEGER);
     $updstmt->bindValue(':c', (int)$dispchar, SQLITE3_INTEGER);
-    $updstmt->bindValue(':id', (int)$currentuid, SQLITE3_INTEGER);
+    $updstmt->bindValue(':d', (int)$sidebars, SQLITE3_INTEGER);
+    $updstmt->bindValue(':id', (int)$uid, SQLITE3_INTEGER);
 
     $updstmt->execute();
     header('Location: config.php', true, 303); 
 }
-
-$fetchsettings = $db->prepare("
-SELECT appearance,movingbg,dispchar,sidebarid,sidebars
-FROM config
-WHERE id = :uid");
-
-$fetchsettings->bindValue(":uid",$currentuid,SQLITE3_INTEGER);
-$settings = $fetchsettings->execute();
-$prefrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
-
-$theme = (bool)$prefrow['appearance'];
-$movebg = (bool)$prefrow['movingbg'];
-$dispchar = (bool)$prefrow['dispchar'];
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -119,7 +79,7 @@ $dispchar = (bool)$prefrow['dispchar'];
     </head>
     <body>
         <div class="diva">
-            <em>For your convinenience, <br>these settings persist across devices.</em>
+            <em>For your convinenience, <br>these settings persist<br>across devices.</em>
             <form id="plrform" method="post" action="<?php echo htmlspecialchars("config");?>">
                 <hr>
                 <span>Appearance</span>
@@ -137,6 +97,9 @@ $dispchar = (bool)$prefrow['dispchar'];
                 <br>
                 <input type="checkbox" id="displaychar" name="displaychar" <?php if($dispchar){echo"checked";}?>>
                 <label for="displaychar">Display your <br> character in the <br> main page</label>
+                <br>
+                <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
+                <label for="sidebars">Decorative sidebars<label>
                 <hr>
                 <span><a href="accountmanagementdangerousactions">Account management</a></span>
                 <hr>
