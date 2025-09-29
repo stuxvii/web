@@ -45,8 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     $updstmt = $db->prepare("
-    UPDATE config 
-    SET 
+    UPDATE config
+    SET
         appearance = :a,
         movingbg = :b,
         dispchar = :c,
@@ -57,10 +57,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $updstmt->bindValue(':b', (int)$movebg, SQLITE3_INTEGER);
     $updstmt->bindValue(':c', (int)$dispchar, SQLITE3_INTEGER);
     $updstmt->bindValue(':d', (int)$sidebars, SQLITE3_INTEGER);
-    $updstmt->bindValue(':id', (int)$uid, SQLITE3_INTEGER);
+    $updstmt->bindValue(':id', (int)$uid, SQLITE3_INTEGER); 
 
-    $updstmt->execute();
-    header('Location: config.php', true, 303); 
+    $success = $updstmt->execute();
+    header('Content-Type: application/json');
+    if ($success) {
+        echo json_encode(['status' => 'success', 'message' => 'Settings saved successfully! (refresh to apply)']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to save settings.']);
+    }
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -80,7 +87,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <body>
         <div class="diva">
             <em>For your convinenience, <br>these settings persist<br>across devices.</em>
-            <form id="plrform" method="post" action="<?php echo htmlspecialchars("config");?>">
+            
+            <span id="status-message" style="margin-bottom: 15px; max-width:14em;"></span>
+            
+            <form id="plrform" method="post" action="<?php echo htmlspecialchars("config.php");?>">
                 <hr>
                 <span>Appearance</span>
                 <hr>
@@ -106,10 +116,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="submit" value="Save">
             </form>
         </div>
-        <?php
-        ?>
-        </div>
-        </div>
         <script src="../titleanim.min.js"></script>
+        <script>
+            const form = document.getElementById('plrform');
+            const statusMessage = document.getElementById('status-message');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+            
+                statusMessage.textContent = '';
+                statusMessage.style.color = 'black';
+                statusMessage.textContent = 'Saving...';
+                const formData = new FormData(form);
+                const actionUrl = form.getAttribute('action');
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok. Status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        statusMessage.style.color = 'green';
+                        statusMessage.textContent = data.message;
+                        
+                    } else {
+                        statusMessage.style.color = 'red';
+                        statusMessage.textContent = data.message || 'An unknown error occurred.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    statusMessage.style.color = 'red';
+                    statusMessage.textContent = 'Failed to connect to server: ' + error.message;
+                })
+            });
+        </script>
     </body>
 </html>
