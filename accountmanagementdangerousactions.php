@@ -107,8 +107,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['password']) && $candoaction) {
 
         $pass = $_POST['password'];
-        $newpass = password_hash($pass,PASSWORD_BCRYPT);
-        if (strlen($newpass) > 15) {
+        if (strlen($pass) < 15) {
+            $msg = "New password is not long<br>enough. Suggestion: 6 random<br>uncommon english words.";
+        } else {
+            $newpass = password_hash($pass,PASSWORD_BCRYPT);
             $updstmt = $db->prepare("
                 UPDATE users 
                 SET 
@@ -120,8 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
             $updstmt->execute();
             $rowsaffected = $db->changes();
-        } else {
-            $msg = "Your password is not long enough.";
         }
     }
 
