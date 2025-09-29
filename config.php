@@ -23,6 +23,10 @@ if ($name) {
     $row = $name->fetchArray(SQLITE3_ASSOC);
     $currentuid = $row['id'];
 }
+if ($currentuid == NULL) {
+    header("Location: logout.php");
+    exit;
+}
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS config (

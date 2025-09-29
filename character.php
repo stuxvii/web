@@ -123,6 +123,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+$fetchsettings = $db->prepare("
+SELECT appearance,movingbg,dispchar,sidebarid,sidebars
+FROM config
+WHERE id = :uid");
+
+$fetchsettings->bindValue(":uid",$currentuid,SQLITE3_INTEGER);
+$settings = $fetchsettings->execute();
+$prefrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
+
+$theme = (bool)$prefrow['appearance'];
+$movebg = (bool)$prefrow['movingbg'];
+$dispchar = (bool)$prefrow['dispchar'];
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -130,9 +143,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" href="../animate.min.css">
         <link rel="stylesheet" href="../normalize.css">
         <link rel="stylesheet" href="../styles.css">
+
+        <?php
+            if ($theme) {
+                echo "<style>:root{--primary-color: #fff;--secondary-color: #000;--bgimg: url(\"cargonetlight.bmp\");}</style>";
+            }
+            if (!$movebg) {
+                echo "<style>body{animation-name: none;}</style>";
+            }
+        ?>
     </head>
     <body>
-        <em>tip: hold your mouse button over the color table</em>
         <div class="diva" style="flex-direction:row;">
             <div class="border">
                 <div class="colorpicker" id="colorpicker">

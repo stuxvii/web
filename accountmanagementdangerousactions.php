@@ -1,11 +1,20 @@
 <?php
 $token = $_COOKIE['auth'] ?? '';
-if (!isset($token)) {
+if (empty($token)) {
     header("Location: index.php");
+    exit;
 }
 if (!preg_match('/^[0-9a-f]{32}$/', $token)) {
     header("Location: logout.php");
     exit;
+}
+
+function guidv4($data = null) {
+    $data = $data ?? random_bytes(64);
+    assert(strlen($data) == 64);
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+    return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
 }
 
 $currentuid = NULL;
@@ -18,15 +27,25 @@ $stmt = $db->prepare("
     WHERE authuuid = :cookie
 ");
 
-$stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
+$stmt->bindValue(':cookie', $token, SQLITE3_TEXT);
 $name = $stmt->execute();
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 
 if ($name) {
     $row = $name->fetchArray(SQLITE3_ASSOC);
+    if ($row) {
     $currentuid = $row['id'];
     $curpasshash = $row['pass'];
+    } else {
+        header("Location: logout.php");
+        exit;
+    }
 }
+if ($currentuid == NULL) {
+    header("Location: logout.php");
+    exit;
+}
+
 $fetchsettings = $db->prepare("
 SELECT appearance,movingbg,dispchar,sidebarid,sidebars
 FROM config
@@ -41,17 +60,18 @@ $movebg = (bool)$colorrow['movingbg'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $candoaction = false;
+    $rowsaffected = NULL;
+
     if (!password_verify($_POST['confirm'],$curpasshash)) { //fixed
-        $msg = "The password you <br>inputted was incorrect.";
+        $msg = "The password confirmation<br>you inputted was invalid.";
     } else {
         $candoaction=true;
     }
+
     if (isset($_POST['username']) && $candoaction) {
 
         $newusername = trim($_POST['username']);
         if (preg_match($usernamevalidateregex,$newusername)){
-            $msg = "$newusername was valid. proceed with the rest";
-            
             $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = :un");
             $stmtcheckusername->bindValue(':un', $newusername, SQLITE3_TEXT);
             $result = $stmtcheckusername->execute();
@@ -60,14 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $row = $result->fetchArray(SQLITE3_ASSOC);
                 $user_count = $row['count'];
             } else {
-                echo error("Internal error while checking username.");
+                echo "Internal error while checking username.";
                 return;
             }
 
             if ($user_count > 0) {
-                echo error("The username '$newusername' is already taken.");
+                echo "The username '$newusername' is already taken.";
             } else {
-                
                 $updstmt = $db->prepare("
                     UPDATE users 
                     SET 
@@ -79,19 +98,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
                 $updstmt->execute();
                 $rowsaffected = $db->changes();
-
-                if ($rowsaffected > 0) {
-                    header("Location: logout.php"); // succ
-                    exit;
-                } else {
-                    echo error("Internal error.<br><em>report to<br>dev plox</em>");
-                }
             }
         } else {
-            $msg = password_verify(!$_POST['confirm'],$curpasshash);
+            $msg = "Your chosen username<br>is not valid.";
+        }
+    }
+        
+    if (isset($_POST['password']) && $candoaction) {
+
+        $pass = $_POST['password'];
+        $newpass = password_hash($pass,PASSWORD_BCRYPT);
+        if (strlen($newpass) > 15) {
+            $updstmt = $db->prepare("
+                UPDATE users 
+                SET 
+                    pass = :pass
+                WHERE authuuid = :cookie
+            ");
+            
+            $updstmt->bindValue(':pass', $newpass, SQLITE3_TEXT);
+            $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+            $updstmt->execute();
+            $rowsaffected = $db->changes();
+        } else {
+            $msg = "Your password is not long enough.";
         }
     }
 
+    if ($rowsaffected > 0) {
+        $updstmt = $db->prepare("
+            UPDATE users 
+            SET 
+                authuuid = :newcookie
+            WHERE authuuid = :cookie
+        ");
+        
+        $updstmt->bindValue(':newcookie', guidv4(), SQLITE3_TEXT);
+        $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+        $updstmt->execute();
+        header('Location: logout.php', true, 303);
+        exit;
+    } else {
+        if (!isset($msg)) {
+        $msg = "Internal error.<br><em>report to<br>dev plox</em>";
+    }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -138,7 +189,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" id="confirm" name="confirm">
                 <br>
                 <br>
-                <input type="submit" value="Change"> 
+                <input type="submit" value="Modify"> 
                 <br>
                 <?php echo $msg; ?>
             </form>
