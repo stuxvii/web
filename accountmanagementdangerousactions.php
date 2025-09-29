@@ -1,13 +1,5 @@
 <?php
-$token = $_COOKIE['auth'] ?? '';
-if (empty($token)) {
-    header("Location: index.php");
-    exit;
-}
-if (!preg_match('/^[0-9a-f]{32}$/', $token)) {
-    header("Location: logout.php");
-    exit;
-}
+require_once 'auth.php';
 
 function guidv4($data = null) {
     $data = $data ?? random_bytes(64);
@@ -17,8 +9,8 @@ function guidv4($data = null) {
     return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
 }
 
-$currentuid = NULL;
-$curpasshash = NULL;
+$uid = NULL;
+$passwordhash = NULL;
 $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 $row = NULL;
 $stmt = $db->prepare("
@@ -34,14 +26,14 @@ $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 if ($name) {
     $row = $name->fetchArray(SQLITE3_ASSOC);
     if ($row) {
-    $currentuid = $row['id'];
-    $curpasshash = $row['pass'];
+    $uid = $row['id'];
+    $passwordhash = $row['pass'];
     } else {
         header("Location: logout.php");
         exit;
     }
 }
-if ($currentuid == NULL) {
+if ($uid == NULL) {
     header("Location: logout.php");
     exit;
 }
@@ -51,7 +43,7 @@ SELECT appearance,movingbg,dispchar,sidebarid,sidebars
 FROM config
 WHERE id = :uid");
 
-$fetchsettings->bindValue(":uid",$currentuid,SQLITE3_INTEGER);
+$fetchsettings->bindValue(":uid",$uid,SQLITE3_INTEGER);
 $settings = $fetchsettings->execute();
 $colorrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
 
@@ -62,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $candoaction = false;
     $rowsaffected = NULL;
 
-    if (!password_verify($_POST['confirm'],$curpasshash)) { //fixed
+    if (!password_verify($_POST['confirm'],$passwordhash)) { //fixed
         $msg = "The password confirmation<br>you inputted was invalid.";
     } else {
         $candoaction=true;
@@ -191,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <br>
                 <input type="submit" value="Modify"> 
                 <br>
-                <?php echo $msg; ?>
+                <?php if (!empty($msg)) { echo $msg; } ?>
             </form>
         </div>
         <div class="divaright">
@@ -220,11 +212,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 your account is permanently wiped.
                 <br>
                 <br>
-                <input type="submit" value="Delete your account">
+                <button onclick="location.href='deleteaccount'">bich</button>
             </div>
         </div>
         <?php
-        $currentuid = null;
+        $uid = null;
         $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
         
         $stmt = $db->prepare("
@@ -238,7 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($name) {
             $row = $name->fetchArray(SQLITE3_ASSOC);
-            $currentuid = $row['id'];
+            $uid = $row['id'];
         }
         if (isset($stmt)) $stmt->close();
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();

@@ -1,9 +1,5 @@
 <?php
-$token = $_COOKIE['auth'] ? '' : false;
-if (!preg_match('/^[0-9a-f]{64}$/', $token) && !$token == false) {
-    header("Location: logout.php");
-    exit;
-}
+require_once 'auth.php';
 
 function exceptions_error_handler($severity, $message, $filename, $lineno) {
     throw new ErrorException($message, 0, $severity, $filename, $lineno);
@@ -29,29 +25,6 @@ $allowed = false;
 $new_key = 'failed to gen key there is no key you dingus';
 $dbpath = "../keys.db";
 $requestedprev = false;
-if (!isset($_COOKIE['auth'])) {
-    global $allowed;
-    echo "You're not logged in.";
-    header("Location: /index.php");
-    $allowed = false;
-    return;
-} else {
-    //auth
-    $db = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-    $stmt = $db->prepare("
-        SELECT operator
-        FROM users 
-        WHERE authuuid = :cookie
-    ");
-    
-    $stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
-    $result = $stmt->execute();
-    $row = $result->fetchArray(SQLITE3_ASSOC);
-    if ($row['operator'] == true) {
-        $allowed = true;
-    }
-    $db->close();
-}
 
 function keygenfunc($length = 12) {
     global $allowed;
