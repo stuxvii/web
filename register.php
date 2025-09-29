@@ -33,7 +33,9 @@ function error($reason) {
 
 function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
     global $usernamevalidateregex;
+    global $discordtvalidateregex;
     global $db;
+
     if ($key === '' || $un === '' || $pass === '' || $tag === '') {
         echo error("An invitation key, Discord username, site username, and password are required.");
         return;
@@ -49,13 +51,13 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
         return;
     }
 
-    if (!preg_match($discordtvalidateregex,$tag)) {
-        echo error("Your Discord username was not valid. Remember to not include the \"@\" symbol at the start of your tag.");
-        return;
-    }
-    
     if (!preg_match($usernamevalidateregex, $un)) {
         echo error("The username '$un' is invalid.");
+        return;
+    }
+
+    if (!preg_match($discordtvalidateregex, $tag)) {
+        echo error("Your Discord username was not valid. Remember to not include the \"@\" symbol at the start of your tag.");
         return;
     }
 
