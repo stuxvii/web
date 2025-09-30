@@ -137,7 +137,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="submit" value="Save">
             </form>
         </div>
-        <div class="rite"></div>
+        <div class="rite">
+                <a href="/">Home</a></div>
         <?php 
         $rightside = true;
         require "sidebars.php";

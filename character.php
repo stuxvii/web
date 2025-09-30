@@ -102,6 +102,10 @@ $stmt_fetch->close();
         ?>
     </head>
     <body>
+        <div class="content">
+        <?php
+        require "sidebars.php";
+        ?>
         <div class="diva" style="flex-direction:row;">
             <div class="charborder">
                 <div id="char">
@@ -136,7 +140,7 @@ $stmt_fetch->close();
         </div>
         <script src="../character.js"></script>
         <script src="../titleanim.min.js"></script>
-        <div class="btmrite">
+        <div class="rite">
             <a href="/">Home page</a>
         </div>
         <?php
@@ -180,6 +184,9 @@ document.addEventListener(\"DOMContentLoaded\", e => {
         
         if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
         $db->close();
+        $rightside = true;
+        require "sidebars.php";
         ?>
+        </div>
     </body>
 </html>

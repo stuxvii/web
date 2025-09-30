@@ -16,6 +16,6 @@ if ($rightside) {
     $class = "sbright";
 }
 if ($sidebars) {
-    echo "<div class='$class'><img src='images/$img.png'></div>";
+    echo "<div class='$class'><img src='/images/$img.png'></div>";
 }
 ?>

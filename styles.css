@@ -110,8 +110,13 @@ a:visited {
 }
 
 .sbright {
+    position: relative;
     height: 100%;
     top: 0;
+    display: flex;
+    margin-bottom: auto;
+    text-align: right;
+    flex-direction: column;
 }
 .sbright img {
     height: 100vh;
@@ -153,7 +158,6 @@ a:visited {
     margin-bottom: auto;
     text-align: right;
     flex-direction: column;
-    padding: 10px;
 }
 
 label {

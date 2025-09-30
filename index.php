@@ -23,7 +23,18 @@ require_once 'auth.php';
         </style>
     </head>
     <body>
-    <div>
+        <div class="content">
+        <?php 
+        require "sidebars.php";
+        ?>
+        <div class="left">
+            <?php
+            if (!empty($token)) {
+                echo "<span class='username'><br>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
+            }
+            ?>
+        </div>
+
         <div class="diva">
         <?php 
         if ($authsuccessful) {
@@ -69,17 +80,6 @@ require_once 'auth.php';
         }
         ?>
         </div>
-        <div class="content">
-        <?php 
-        require "sidebars.php";
-        ?>
-        <div class="left">
-            <?php
-            if (!empty($token)) {
-                echo "<span class='username'><br>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
-            }
-            ?>
-        </div>
         <div class="rite">
             <?php
             if (!empty($token)) {
@@ -94,7 +94,6 @@ require_once 'auth.php';
         $rightside = true;
         require "sidebars.php";
         ?>
-        </div>
         </div>
         <script src="../titleanim.min.js"></script>
     </body>

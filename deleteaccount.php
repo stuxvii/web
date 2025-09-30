@@ -57,25 +57,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ?>
     </head>
     <body>
-    <div class="diva">
-        <em>Account deletion.</em>
-        <form id="plrform" method="post" action=""> <hr>
-            <?php if ($curstep === "text") { ?>
-                <span>If you aren't satisfied with the <br>service, or are encountering <br>any issues, please tell us<br> over on <a href="https://discord.gg/7JwYGHAvJV">our Discord server.</a></span><hr><br>
-            <?php } ?>
-            
-            <span><?php echo $instructions; ?></span>
-            <br>
-            <input type="<?php echo $curstep === 'password' ? 'password' : 'text'; ?>" 
-                   name="<?php echo $curstep; ?>" 
-                   style="width:400px;" 
-                   autocomplete="<?php echo $curstep === 'password' ? 'current-password' : 'off'; ?>">
-            <input type="submit" value="Continue">
-            <br>
-            <?php if (!empty($msg)) { echo $msg; } ?>
-        </form>
+    <div class="content">
+        <div class="diva">
+            <em>Account deletion.</em>
+            <form id="plrform" method="post" action=""> <hr>
+                <?php if ($curstep === "text") { ?>
+                    <span>If you aren't satisfied with the <br>service, or are encountering <br>any issues, please tell us<br> over on <a href="https://discord.gg/7JwYGHAvJV">our Discord server.</a></span><hr><br>
+                <?php } ?>
+                
+                <span><?php echo $instructions; ?></span>
+                <br>
+                <input type="<?php echo $curstep === 'password' ? 'password' : 'text'; ?>" 
+                    name="<?php echo $curstep; ?>" 
+                    style="width:400px;" 
+                    autocomplete="<?php echo $curstep === 'password' ? 'current-password' : 'off'; ?>">
+                <input type="submit" value="Continue">
+                <br>
+                <?php if (!empty($msg)) { echo $msg; } ?>
+            </form>
+        </div>
     </div>
-    <div class="btmrite"><?php echo htmlspecialchars($name); ?></div>
     <script src="../titleanim.min.js"></script>
     </body>
 </html>
