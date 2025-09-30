@@ -3,7 +3,6 @@ $token = $_COOKIE['auth'] ?? '';
 if (empty($token)) {
     $authsuccessful = false;
 } else {
-    $authsuccessful = true;
     
     if (!preg_match('/^[0-9a-f]{32}$/', $token)) {
         header("Location: logout.php");
@@ -11,6 +10,7 @@ if (empty($token)) {
         exit;
     }
 
+    $authsuccessful = true;
     $db = new SQLite3($_SERVER['DOCUMENT_ROOT'] . '/keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
 
     $stmt = $db->prepare("
@@ -19,11 +19,11 @@ if (empty($token)) {
         WHERE authuuid = :cookie
     ");
 
-    $stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
+    $stmt->bindValue(':cookie', $token, SQLITE3_TEXT);
     $name = $stmt->execute();
 
-    if ($name) {
-        $row = $name->fetchArray(SQLITE3_ASSOC);
+    if ($result) {
+        $row = $result->fetchArray(SQLITE3_ASSOC);
         $uid = $row['id'];
         $name = $row['username'];
         $passwordhash = $row['pass'];

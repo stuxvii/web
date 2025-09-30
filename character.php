@@ -115,7 +115,7 @@ $stmt_fetch->close();
                     <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
                     <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
                     <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                    <div class="btmleft">
+                    <div class="left">
                         <span id="whatdiduselect">click<br>guy</span>
                         <div id="plrform"> 
                             <button id="saveButton" type="button">Save</button>

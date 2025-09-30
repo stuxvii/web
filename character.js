@@ -58,8 +58,7 @@ charbody.addEventListener("click", function(event) {
         
     }
 });
-
-document.getElementById('saveButton').addEventListener('click', function(e) {
+function save() {
     const bodyparts = document.querySelectorAll('#char .bodypart');
     const formData = new URLSearchParams();
     
@@ -97,10 +96,14 @@ document.getElementById('saveButton').addEventListener('click', function(e) {
     };
 
     xhr.send(formData.toString());
+}
+document.getElementById('saveButton').addEventListener('click', function(e) {
+    save();
 });
 
 
 function render() {
+    save();
     var xmlhttp = new XMLHttpRequest();
     const btn = document.getElementById("renderstat");
     btn.innerHTML = "Standby...";
