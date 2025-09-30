@@ -20,7 +20,7 @@ if (empty($token)) {
     ");
 
     $stmt->bindValue(':cookie', $token, SQLITE3_TEXT);
-    $name = $stmt->execute();
+    $result = $stmt->execute();
 
     if ($result) {
         $row = $result->fetchArray(SQLITE3_ASSOC);
