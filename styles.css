@@ -14,8 +14,9 @@
     --bgimg: url("cargonet.bmp");
 }
 
-html {
+html, body{
     cursor: url('cursors/kangel.cur'), auto;
+    margin:0px;
 }
 
 body {
@@ -96,7 +97,27 @@ a:visited {
     transform: translate(-50%, -50%);
     max-height: 1000px;
 }
+.content {
+    display: flex;
+    flex-direction: row;
+}
+.sidebar {
+    height: 100%;
+    top: 0;
+}
+.sidebar img {
+    height: 100vh;
+}
 
+.sbright {
+    height: 100%;
+    top: 0;
+}
+.sbright img {
+    height: 100vh;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
 .divaleft {
     display: flex;
     position: absolute;
@@ -118,27 +139,21 @@ a:visited {
     transform: translate(0%, 50%);
     max-height: 1000px;
 }
-.btmleft {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+.left {
     padding: 5px;
-    z-index: 1000;
-    overflow: auto;
     font-size: 0.5em;
+    overflow: auto;
+    margin-left: right;
+    padding:0px;
 }
 
-.btmrite {
-    position: fixed;
+.rite {
     display: flex;
+    margin-left: auto;
+    margin-bottom: auto;
     text-align: right;
     flex-direction: column;
-    bottom: 0;
-    right: 0;
     padding: 10px;
-    z-index: 1000;
-    max-height: 100vh;
-    overflow: auto;
 }
 
 label {

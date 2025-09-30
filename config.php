@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS config (
 $newconf = $db->prepare("
     INSERT OR IGNORE INTO config (id) VALUES (:uid)
 ");
-$newconf->bindValue(':uid', $currentuid, SQLITE3_TEXT);
+$newconf->bindValue(':uid', $uid, SQLITE3_INTEGER);
 $ncresult = $newconf->execute();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -44,25 +44,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sidebars = true;
         }
     }
+    if (isset($_POST['sidebarid'])) {
+        if ($_POST['sidebarid']) {
+            $sidebarid = (int)$_POST['sidebarid'];
+        }
+    }
     $updstmt = $db->prepare("
     UPDATE config
     SET
         appearance = :a,
         movingbg = :b,
         dispchar = :c,
-        sidebars = :d
+        sidebarid = :d,
+        sidebars = :e
     WHERE id = :id
     ");
     $updstmt->bindValue(':a', (int)$theme, SQLITE3_INTEGER);
     $updstmt->bindValue(':b', (int)$movebg, SQLITE3_INTEGER);
     $updstmt->bindValue(':c', (int)$dispchar, SQLITE3_INTEGER);
-    $updstmt->bindValue(':d', (int)$sidebars, SQLITE3_INTEGER);
+    $updstmt->bindValue(':d', (int)$sidebarid, SQLITE3_INTEGER);
+    $updstmt->bindValue(':e', (int)$sidebars, SQLITE3_INTEGER);
     $updstmt->bindValue(':id', (int)$uid, SQLITE3_INTEGER); 
 
     $success = $updstmt->execute();
     header('Content-Type: application/json');
     if ($success) {
-        echo json_encode(['status' => 'success', 'message' => 'Settings saved successfully! (refresh to apply)']);
+        echo json_encode(['status' => 'success', 'message' => "Settings saved successfully! (refresh to apply)"]);
     } else {
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Failed to save settings.']);
@@ -85,6 +92,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ?>
     </head>
     <body>
+        <div class="content">
+
+        <?php 
+        require "sidebars.php";
+        ?>
         <div class="diva">
             <em>For your convinenience, <br>these settings persist<br>across devices.</em>
             
@@ -110,11 +122,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
                 <label for="sidebars">Decorative sidebars<label>
+                <br>
+                <input type="radio" id="1" name="sidebarid" value="1" <?php if($sidebarid==1){echo"checked";}?>>
+                <label for="1">Day</label><br>
+
+                <input type="radio" id="2" name="sidebarid" value="2" <?php if($sidebarid==2){echo"checked";}?>>
+                <label for="2">Afternoon</label><br>
+
+                <input type="radio" id="3" name="sidebarid" value="3" <?php if($sidebarid==3){echo"checked";}?>>
+                <label for="3">Night</label>
                 <hr>
                 <span><a href="accountmanagementdangerousactions">Account management</a></span>
                 <hr>
                 <input type="submit" value="Save">
             </form>
+        </div>
+        <div class="rite"></div>
+        <?php 
+        $rightside = true;
+        require "sidebars.php";
+        ?>
         </div>
         <script src="../titleanim.min.js"></script>
         <script>

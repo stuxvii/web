@@ -129,7 +129,7 @@ $stmt_fetch->close();
                 </div>
             </div>
             <div class="border">
-                <button onclick="render();">Render</button>
+                <button onclick="render();" id="renderstat">Render</button>
                 <br>
                 <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
             </div>

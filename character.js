@@ -102,9 +102,13 @@ document.getElementById('saveButton').addEventListener('click', function(e) {
 
 function render() {
     var xmlhttp = new XMLHttpRequest();
+    const btn = document.getElementById("renderstat");
+    btn.innerHTML = "Standby...";
+    btn.disabled = true;
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("render").src = this.responseText + "?t=" + new Date().getTime();
+            btn.innerHTML = "Done.";
             console.log(this.responseText);
         }
     };
@@ -118,7 +122,6 @@ function render() {
         
         data[id] = color;
     });
-    console.log("Requesting render...");
     xmlhttp.open("POST", "render.php", true);
     xmlhttp.setRequestHeader("Content-Type", "application/json"); 
     xmlhttp.send(JSON.stringify(data));

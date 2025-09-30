@@ -23,9 +23,6 @@ require_once 'auth.php';
         </style>
     </head>
     <body>
-        <?php 
-        require_once "sidebars.php";
-        ?>
     <div>
         <div class="diva">
         <?php 
@@ -72,39 +69,31 @@ require_once 'auth.php';
         }
         ?>
         </div>
-        <div class="btmleft">
+        <div class="content">
+        <?php 
+        require "sidebars.php";
+        ?>
+        <div class="left">
             <?php
+            if (!empty($token)) {
                 echo "<span class='username'><br>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
+            }
             ?>
         </div>
-        <?php
-        if ($authsuccessful) {
-            $banner = "Website is currently in development. <br>Expect weird errors or things to suddenly change.";
-            if ($dispchar) {
-
-            }
-            
-            echo "<div class=\"warn\" id=\"warn\">
-                <span style='background-color:red;cursor: url(\"cursors/chicken.cur\"), auto;' id=\"dumjokeclosebtn\">&nbsp;X </span>
-                <em style='text-align: center;'>$banner</em>
-            </div>
-            <script>
-                const a = document.getElementById(\"dumjokeclosebtn\");
-                const b = document.getElementById(\"warn\");
-                a.addEventListener(\"click\", function(event) {
-                    b.remove()
-                })
-            </script>";
-        }
-        ?>
-        <div class="btmrite">
+        <div class="rite">
             <?php
-            if (isset($_COOKIE['auth'])) {
+            if (!empty($token)) {
                 echo "<a href=\"config\">Settings</a>";
                 echo "<a href=\"logout\">Log out</a>";
                 echo "<a href=\"https://discord.gg/7JwYGHAvJV\">Official Discord server</a>";
             }
             ?>
+        </div>
+
+        <?php 
+        $rightside = true;
+        require "sidebars.php";
+        ?>
         </div>
         </div>
         <script src="../titleanim.min.js"></script>
