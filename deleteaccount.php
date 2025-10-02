@@ -20,17 +20,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $instructions = "(2/2) Enter your password to confirm<br>the erasure of your data.<br>";
         
         if (password_verify($_POST["password"], $passwordhash)) {
-            $delete_user_stmt = $db->prepare("DELETE FROM users WHERE id = :uid");
-            $delete_user_stmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
+            $delete_user_stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+            $delete_user_stmt->bind_param('i', $uid);
             $delete_user_stmt->execute();
-            
-            $delete_config_stmt = $db->prepare("DELETE FROM config WHERE id = :uid");
-            $delete_config_stmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
-            $delete_config_stmt->execute();
+            $delete_user_stmt->close();
 
-            $delete_avatar_stmt = $db->prepare("DELETE FROM avatars WHERE id = :uid");
-            $delete_avatar_stmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
+            $delete_config_stmt = $db->prepare("DELETE FROM config WHERE id = ?");
+            $delete_config_stmt->bind_param('i', $uid);
+            $delete_config_stmt->execute();
+            $delete_config_stmt->close();
+
+            $delete_avatar_stmt = $db->prepare("DELETE FROM avatars WHERE id = ?");
+            $delete_avatar_stmt->bind_param('i', $uid);
             $delete_avatar_stmt->execute();
+            $delete_avatar_stmt->close();
             
             setcookie('auth', '', time() - 3600, '/');
             

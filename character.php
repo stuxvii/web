@@ -11,28 +11,16 @@ $color_map = [
     'rarm_color' => 'rightarm'
 ];
 
-if ($uid === null) {
+if ($uid === null || $db === null) {
     http_response_code(500);
-    die("User ID not found. Cannot perform character operations.");
+    die("Authentication Error...");
 }
 
-$db->exec("
-CREATE TABLE IF NOT EXISTS avatars (
-    id INTEGER PRIMARY KEY,
-    head INTEGER DEFAULT 0,
-    torso INTEGER DEFAULT 0,
-    leftarm INTEGER DEFAULT 0,
-    rightarm INTEGER DEFAULT 0,
-    leftleg INTEGER DEFAULT 0,
-    rightleg INTEGER DEFAULT 0
-)"); 
-
 $insertAvatarStmt = $db->prepare("
-    INSERT OR IGNORE INTO avatars (id) VALUES (:uid)
+    INSERT IGNORE INTO avatars (id) VALUES (?)
 ");
 
-$db->busyTimeout(5000);
-$insertAvatarStmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
+$insertAvatarStmt->bind_param('i', $uid);
 $insertAvatarStmt->execute();
 $insertAvatarStmt->close();
 
@@ -57,19 +45,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $update_data[$db_column] = (int)$color_value;
         }
 
-        if ($valid_request) {
-            $set_clauses = [];
-            foreach ($update_data as $db_column => $value) {
-                $set_clauses[] = "$db_column = :$db_column";
-            }
+            if ($valid_request) {
+                $set_clauses = [];
+                $bind_types = '';
+                $bind_values = [];
+
+                foreach ($update_data as $db_column => $value) {
+                    $set_clauses[] = "$db_column = ?";
+                    $bind_types .= 'i';
+                    $bind_values[] = $value;
+                }
+            $bind_types .= 'i';
+            $bind_values[] = $uid;
+
             $sql_set = implode(', ', $set_clauses);
-            $sql = "UPDATE avatars SET $sql_set WHERE id = :id";
+            $sql = "UPDATE avatars SET $sql_set WHERE id = ?";
+            
             $stmt = $db->prepare($sql);
             
-            foreach ($update_data as $db_column => $value) {
-                $stmt->bindValue(":$db_column", $value, SQLITE3_INTEGER);
-            }
-            $stmt->bindValue(':id', $uid, SQLITE3_INTEGER);
+            $stmt->bind_param($bind_types, ...$bind_values);
+
             $stmt->execute();
             echo "Saved!";
             $stmt->close();
@@ -82,14 +77,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$stmt_fetch = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
-$stmt_fetch->bindValue(':uid', $uid, SQLITE3_INTEGER);
-$result_fetch = $stmt_fetch->execute();
+$stmt_fetch = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = ?");
+$stmt_fetch->bind_param('i', $uid);
+$stmt_fetch->execute();
+$result_fetch = $stmt_fetch->get_result();
 
 $colorrow = false;
 if ($result_fetch) {
-    $colorrow = $result_fetch->fetchArray(SQLITE3_ASSOC);
-    $result_fetch->finalize();
+    $colorrow = $result_fetch->fetch_assoc();
 }
 $stmt_fetch->close();
 

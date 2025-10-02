@@ -1,27 +1,34 @@
 <?php
 require_once "auth.php";
 
-$db->exec("
+if ($uid === null || $db === null) {
+    http_response_code(500);
+    die("Authentication Error..");
+}
+
+$db->query("
 CREATE TABLE IF NOT EXISTS config (
-    id INTEGER PRIMARY KEY,
-    appearance BOOLEAN NOT NULL DEFAULT FALSE,
-    dispchar BOOLEAN NOT NULL DEFAULT TRUE,
-    movingbg BOOLEAN NOT NULL DEFAULT TRUE,
-    sidebarid INTEGER NOT NULL DEFAULT 1,
-    sidebars BOOLEAN NOT NULL DEFAULT FALSE
+    id INT PRIMARY KEY,
+    appearance TINYINT(1) NOT NULL DEFAULT 0,
+    dispchar TINYINT(1) NOT NULL DEFAULT 1,
+    movingbg TINYINT(1) NOT NULL DEFAULT 1,
+    sidebarid INT NOT NULL DEFAULT 1,
+    sidebars TINYINT(1) NOT NULL DEFAULT 0
 )");
 
 $newconf = $db->prepare("
-    INSERT OR IGNORE INTO config (id) VALUES (:uid)
+    INSERT IGNORE INTO config (id) VALUES (?)
 ");
-$newconf->bindValue(':uid', $uid, SQLITE3_INTEGER);
-$ncresult = $newconf->execute();
+$newconf->bind_param('i', $uid);
+$newconf->execute();
+$newconf->close();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $theme = false;
     $movebg = false;
     $dispchar = false;
     $sidebars = false;
+
     if (isset($_POST['thememode'])) {
         if ($_POST['thememode'] == "light") {
             $theme = true;
@@ -49,24 +56,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sidebarid = (int)$_POST['sidebarid'];
         }
     }
+
     $updstmt = $db->prepare("
     UPDATE config
     SET
-        appearance = :a,
-        movingbg = :b,
-        dispchar = :c,
-        sidebarid = :d,
-        sidebars = :e
-    WHERE id = :id
+        appearance = ?,
+        movingbg = ?,
+        dispchar = ?,
+        sidebarid = ?,
+        sidebars = ?
+    WHERE id = ?
     ");
-    $updstmt->bindValue(':a', (int)$theme, SQLITE3_INTEGER);
-    $updstmt->bindValue(':b', (int)$movebg, SQLITE3_INTEGER);
-    $updstmt->bindValue(':c', (int)$dispchar, SQLITE3_INTEGER);
-    $updstmt->bindValue(':d', (int)$sidebarid, SQLITE3_INTEGER);
-    $updstmt->bindValue(':e', (int)$sidebars, SQLITE3_INTEGER);
-    $updstmt->bindValue(':id', (int)$uid, SQLITE3_INTEGER); 
+
+    $updstmt = $db->prepare("
+    UPDATE config
+    SET
+        appearance = ?,
+        movingbg = ?,
+        dispchar = ?,
+        sidebarid = ?,
+        sidebars = ?
+    WHERE id = ?
+    ");
+
+    // --- FIX IS HERE: Convert all necessary variables to integers ---
+
+    // Casting booleans to integers (0 or 1) for the database TINYINT(1) field.
+    $a = (int)$theme;
+    $b = (int)$movebg;
+    $c = (int)$dispchar;
+    $d = (int)$sidebarid; // Already guaranteed to be int, but for consistency
+    $e = (int)$sidebars;
+    $id = (int)$uid; // Ensure UID is treated as an integer
+
+    // Now bind the new variables ($a, $b, $c, $d, $e, $id) by reference
+    $updstmt->bind_param('iiiiii', 
+        $a, 
+        $b, 
+        $c, 
+        $d, 
+        $e, 
+        $id
+    );
 
     $success = $updstmt->execute();
+    $updstmt->close();
     header('Content-Type: application/json');
     if ($success) {
         echo json_encode(['status' => 'success', 'message' => "Settings saved successfully! (refresh to apply)"]);

@@ -14,7 +14,8 @@ if (isset($_COOKIE['auth'])) {
     <body>
 <?php
 
-$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+require_once __DIR__ . '/databaseconfig.php';
+$db = get_db_connection();
 
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 $discordtvalidateregex = '/^(?!.*?\.{2,})[a-z0-9_\.]{2,32}$/';
@@ -61,17 +62,20 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
         return;
     }
 
-    $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = :un");
-    $stmtcheckusername->bindValue(':un', $un, SQLITE3_TEXT);
-    $result = $stmtcheckusername->execute();
+    $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = ?");
+    $stmtcheckusername->bind_param('s', $un);
+    $stmtcheckusername->execute();
+    $result = $stmtcheckusername->get_result();
     
     if ($result) {
-        $row = $result->fetchArray(SQLITE3_ASSOC);
+        $row = $result->fetch_assoc();
         $user_count = $row['count'];
     } else {
+        error_log("DB Error checking username: " . $db->error);
         echo error("Internal error while checking username.");
         return;
     }
+    $stmtcheckusername->close();
 
     if ($user_count > 0) {
         echo error("The username '$un' is already taken.");
@@ -80,23 +84,27 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
         $stmt = $db->prepare("
             UPDATE users 
             SET 
-                username = :newuser,
-                pass = :newpass,
-                discordtag = :newdctag,
-                timestamp = :curunix,
-                authuuid = :newuuid
-            WHERE key = :pkey AND (username IS NULL OR username = '')
+                username = ?,
+                pass = ?,
+                discordtag = ?,
+                registerts = ?,
+                authuuid = ?
+            WHERE invkey = ? AND (username IS NULL OR username = '')
         ");
+
         $hashpw = password_hash($pass, PASSWORD_BCRYPT);
-        
-        $stmt->bindValue(':newuser', $un, SQLITE3_TEXT);
-        $stmt->bindValue(':newpass', $hashpw, SQLITE3_TEXT);
-        $stmt->bindValue(':newdctag', $tag, SQLITE3_TEXT);
-        $stmt->bindValue(':pkey', $key, SQLITE3_TEXT);
-        $stmt->bindValue(':curunix', time(), SQLITE3_TEXT);
-        $stmt->bindValue(':newuuid', guidv4(), SQLITE3_TEXT);
+        $stmt->bind_param('ssssss', 
+            $un, 
+            $hashpw, 
+            $tag, 
+            time(), 
+            guidv4(), 
+            $key
+        );
         $stmt->execute();
-        $rowsaffected = $db->changes();
+        
+        $rowsaffected = $stmt->affected_rows; 
+        $stmt->close();
 
         if ($rowsaffected > 0) {
             header("Location: login.php");

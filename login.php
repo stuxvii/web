@@ -12,19 +12,7 @@ if (isset($_COOKIE['auth'])) {
     </head>
     <body>
 <?php
-$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-
-// Create the table if it doesn't exist (for some godforsaken reason i.e wiped or deleted)
-$db->exec("
-    CREATE TABLE IF NOT EXISTS users (
-        username TEXT,
-        pass TEXT,
-        discordtag TEXT,
-        key TEXT,
-        timestamp TEXT,
-        authuuid TEXT
-    )
-");
+require_once 'databaseconfig.php';
 
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 
@@ -34,7 +22,7 @@ function error($reason) {
 
 function login($un, $pass) {
     global $usernamevalidateregex;
-    global $db;
+    $db = get_db_connection();
 
     $invalid = "The credentials you provided are invalid."; // We really shouldn't give like.. yk.. clues to people if they've guessed a username or not.
 
@@ -48,18 +36,20 @@ function login($un, $pass) {
         return;
     }
 
-    $stmt = $db->prepare("SELECT pass, authuuid FROM users WHERE username = :un");
-    $stmt->bindValue(':un', $un, SQLITE3_TEXT);
-    $result = $stmt->execute();
+    $stmt = $db->prepare("SELECT pass, authuuid FROM users WHERE username = ?");
+    $stmt->bind_param('s', $un);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $user_data = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+    $user_data = $result ? $result->fetch_assoc() : false;
+    $stmt->close();
 
     if ($user_data && password_verify($pass, $user_data['pass'])) {
 
         setcookie('auth', $user_data['authuuid'], time() + (86400 * 30), "/", "acdbx.top", true, true);
         header("Location: index.php");
         exit;
-        
+        $db->close();
     } else {
         echo error($invalid);
     }

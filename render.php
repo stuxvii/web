@@ -3,7 +3,7 @@ require 'auth.php';
 require 'brickcolor.php';
 
 // --- Cooldown Configuration ---
-$cooldown_seconds = 15;
+$cooldown_seconds = 5;
 $cooldown_file_path = "/tmp/render_cooldowns/";
 // ------------------------------
 

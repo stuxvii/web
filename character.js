@@ -1,6 +1,8 @@
 const colorpicker = document.getElementById("colorpicker");
 const charbody = document.getElementById("char");
 const bdpartstt = document.getElementById("whatdiduselect");
+const rs = document.getElementById("renderstat");
+const renderimg = document.getElementById("render");
 var bodypart = "";
 let pickingcolor = false;
 
@@ -58,10 +60,11 @@ charbody.addEventListener("click", function(event) {
         
     }
 });
-function save() {
+
+async function save() {
     const bodyparts = document.querySelectorAll('#char .bodypart');
-    const formData = new URLSearchParams();
-    
+    const formData = new FormData(); 
+
     formData.append('is_ajax_save', '1');
 
     bodyparts.forEach(function(part) {
@@ -73,56 +76,70 @@ function save() {
         }
     });
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', window.location.href, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData 
+        });
 
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            bdpartstt.innerHTML = xhr.responseText; 
+        if (response.ok) {
+            const resptext = await response.text(); 
+            
+            bdpartstt.innerHTML = resptext; 
+            
             setTimeout(() => {
                 if (bdpartstt.innerHTML === 'Saved!') {
                     bdpartstt.innerHTML = 'click<br>guy';
                 }
             }, 3000); 
+
         } else {
-            bdpartstt.innerHTML = 'Error saving: ' + xhr.status;
-            console.error('Save failed:', xhr.responseText);
+            bdpartstt.innerHTML = 'Error saving: ' + response.status;
+            console.error('Save failed:', await response.text());
         }
-    };
 
-    xhr.onerror = function() {
+    } catch (error) {
         bdpartstt.innerHTML = 'Network Error';
-    };
-
-    xhr.send(formData.toString());
+        console.error('Fetch operation failed:', error);
+    }
 }
 document.getElementById('saveButton').addEventListener('click', function(e) {
     save();
 });
 
+async function render() {
+    // Constants "rs" and "renderimg" were set earlier in code, they are not needed to be re-declared.
+    await save();
+    rs.innerHTML = "Rendering..."; // I hope it isn't a problem, but i renamed the "renderstat" variable to just "rs" for simplicity.
+    rs.disabled = true;
 
-function render() {
-    save();
-    var xmlhttp = new XMLHttpRequest();
-    const btn = document.getElementById("renderstat");
-    btn.innerHTML = "Rendering...";
-    btn.disabled = true;
-    xmlhttp.onreadystatechange = function() {
-        if (this.status == 429) {
-            btn.innerHTML = "You need to wait 15s between renders.";
+    try {
+        const request = await fetch("render.php", {
+            method: 'GET'
+        });
+
+        const resp = await request.text();
+        const stat = request.status;
+
+        if (stat == 429) { // Backend returns 429 if we're on cooldown.
+            rs.innerHTML = "You need to wait 15s between renders.";
+        } else
+        if (request.ok) {
+            renderimg.setAttribute('src', resp + "?t=" + new Date().getTime());
+            console.log("Received URL is: ", resp);
+            rs.innerHTML = "Done."
+        } else {
+            rs.innerHTML = "Error: " + stat;
+            console.error("Got error code: ", stat)
+            console.error("Unhandled error: ", resp)
         }
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("render").src = this.responseText + "?t=" + new Date().getTime();
-            btn.innerHTML = "Done.";
-            console.log(this.responseText);
-        }
+    } catch (error) {
+        console.error("Gasp! An error. ", error)
+        rs.innerHTML = "Error: " + error;
+    } finally {
         setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = 'Render';
-        }, 3000); 
-    };
-    
-    xmlhttp.open("GET", "render.php", true);
-    xmlhttp.send();
+            rs.innerHTML = "Render"
+            rs.disabled = false
+        }, 3000);
+    }
 }

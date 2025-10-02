@@ -23,7 +23,6 @@ function percentloadavg(){ // https://www.php.net/manual/en/function.sys-getload
 
 $allowed = ($opperms) ? true : false;
 $new_key = 'failed to gen key there is no key you dingus';
-$dbpath = "../keys.db";
 $requestedprev = false;
 
 function keygenfunc($length = 12) {
@@ -39,7 +38,7 @@ function keygenfunc($length = 12) {
     return $random_key;
 }
 
-function kill($victim, $allowed, $dbpath) {
+function kill($victim, $allowed) {
     global $requestedprev;
     $requestedprev = true;
     if ($allowed === false) {
@@ -54,17 +53,16 @@ function kill($victim, $allowed, $dbpath) {
     $db = null;
     try {
         echo "Attempting to connect to the database...<br>";
-        $db = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE); 
+        $db = get_db_connection(); 
         echo "Successfully connected to the database...<br>";
 
-        $select_sql = "SELECT id FROM users WHERE id = :id";
+        $select_sql = "SELECT id FROM users WHERE id = ?";
         $stmt_check = $db->prepare($select_sql);
-        $stmt_check->bindValue(':id', (int)$victim, SQLITE3_INTEGER);
-        
-        echo "Performing database search...<br>";
-        $result = $stmt_check->execute();
-        
-        $row = $result->fetchArray(SQLITE3_ASSOC);
+        $stmt_check->bindValue('i', $victim);
+        $stmt_check->execute();
+        $result = $stmt_check->get_result();
+        $row = $result->fetch_assoc();
+        $stmt_check->close();
         
         if ($row) {
             echo "Found user.<br>";
@@ -72,17 +70,18 @@ function kill($victim, $allowed, $dbpath) {
             $update_sql = "
                 UPDATE users 
                 SET 
-                    username = \"Content Deleted\",
+                    username = 'Content Deleted',
                     pass = NULL,
                     discordtag = NULL,
-                    timestamp = NULL,
-                    key = NULL,
+                    registerts = NULL,
+                    invkey = NULL,
                     authuuid = NULL
-                WHERE id = :id
+                WHERE id = ?
             ";
             $stmt_update = $db->prepare($update_sql);
-            $stmt_update->bindValue(':id', (int)$victim, SQLITE3_INTEGER);
+            $stmt_update->bindValue('i', $victim);
             $stmt_update->execute();
+            $stmt_update->close();
             echo "User erased (anonymized).<br>";
             
         } else {
@@ -99,48 +98,43 @@ function kill($victim, $allowed, $dbpath) {
     } 
 }
 
-function main() {
+function genkey() {
     global $allowed;
     if ($allowed == false) {
         return;
     }
     try {
-        global $dbpath;
         echo "Attempting to connect to the database...<br>";
-        $db = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-
+        $db = get_db_connection();
         echo "Successfully connected to the database...<br>";
-
-        $db->exec("
+        $db->query("
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            pass TEXT,
-            discordtag TEXT,
-            key TEXT,
-            timestamp TEXT,
-            authuuid TEXT,
-            operator BOOLEAN
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            username VARCHAR(32) DEFAULT NULL,
+            pass VARCHAR(100) DEFAULT NULL,
+            discordtag VARCHAR(100) DEFAULT NULL,
+            registerts VARCHAR(100) DEFAULT NULL,
+            authuuid VARCHAR(100) DEFAULT NULL,
+            invkey VARCHAR(100) DEFAULT NULL,       
+            isoperator TINYINT(1) DEFAULT 0
         )
         ");
-
         echo "Database is ready.<br>";
         global $new_key;
-        $new_key = keygenfunc();
+        $new_key = keygenfunc(); 
         echo "Generated new key.<br>";
-
-        $insert_sql = "INSERT INTO users (key) VALUES (:new_key)";
+        $insert_sql = "INSERT INTO users (invkey) VALUES (?)";
         $stmt = $db->prepare($insert_sql);
-        $stmt->bindValue(':new_key', $new_key, SQLITE3_TEXT);
+        $stmt->bind_param('s', $new_key);
         $stmt->execute();
 
-        if ($db->changes() > 0) {
+        if ($stmt->affected_rows > 0) {
             echo "Successfully wrote the key to the database.<br>";
         } else {
             echo "Failed to write the key to the database.<br>";
         }
 
-        $db->close();
+        $stmt->close();
         echo "Database connection closed.<br>";
 
     } catch (Exception $e) {
@@ -173,10 +167,10 @@ function main() {
                         return;
                     }
                     if (isset($_POST['username'])) {
-                        kill($_POST['username'],$allowed,$dbpath);
+                        kill($_POST['username'],$allowed);
                     } else 
                     if (isset($_POST['keygen'])) {
-                        main();
+                        genkey();
                     }
                 }
                 ?>

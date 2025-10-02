@@ -1,5 +1,9 @@
 <?php
 require_once 'auth.php';
+if (!$authsuccessful) {
+    header("Location: logout.php");
+    exit;
+}
 
 function guidv4($data = null) {
     $data = $data ?? random_bytes(64);
@@ -9,52 +13,14 @@ function guidv4($data = null) {
     return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
 }
 
-$uid = NULL;
-$passwordhash = NULL;
-$db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-$row = NULL;
-$stmt = $db->prepare("
-    SELECT id,pass
-    FROM users 
-    WHERE authuuid = :cookie
-");
-
-$stmt->bindValue(':cookie', $token, SQLITE3_TEXT);
-$name = $stmt->execute();
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 
-if ($name) {
-    $row = $name->fetchArray(SQLITE3_ASSOC);
-    if ($row) {
-    $uid = $row['id'];
-    $passwordhash = $row['pass'];
-    } else {
-        header("Location: logout.php");
-        exit;
-    }
-}
-if ($uid == NULL) {
-    header("Location: logout.php");
-    exit;
-}
-
-$fetchsettings = $db->prepare("
-SELECT appearance,movingbg,dispchar,sidebarid,sidebars
-FROM config
-WHERE id = :uid");
-
-$fetchsettings->bindValue(":uid",$uid,SQLITE3_INTEGER);
-$settings = $fetchsettings->execute();
-$colorrow = $settings ? $settings->fetchArray(SQLITE3_ASSOC) : false;
-
-$theme = (bool)$colorrow['appearance'];
-$movebg = (bool)$colorrow['movingbg'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $candoaction = false;
     $rowsaffected = NULL;
 
-    if (!password_verify($_POST['confirm'],$passwordhash)) { //fixed
+    if (!isset($_POST['confirm']) || !password_verify($_POST['confirm'],$passwordhash)) { //fixed
         $msg = "The password confirmation<br>you inputted was invalid.";
     } else {
         $candoaction=true;
@@ -64,32 +30,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $newusername = trim($_POST['username']);
         if (preg_match($usernamevalidateregex,$newusername)){
-            $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = :un");
-            $stmtcheckusername->bindValue(':un', $newusername, SQLITE3_TEXT);
-            $result = $stmtcheckusername->execute();
-            
-            if ($result) {
-                $row = $result->fetchArray(SQLITE3_ASSOC);
-                $user_count = $row['count'];
-            } else {
-                echo "Internal error while checking username.";
-                return;
-            }
+            $stmtcheckusername = $db->prepare("SELECT COUNT(*) as count FROM users WHERE username = ?");
+            $stmtcheckusername->bind_param('s', $newusername);
+            $stmtcheckusername->execute();
+            $result = $stmtcheckusername->get_result();
+            $row = $result->fetch_assoc();
+            $stmtcheckusername->close();
 
-            if ($user_count > 0) {
+            if ($row['count'] > 0) {
                 echo "The username '$newusername' is already taken.";
             } else {
                 $updstmt = $db->prepare("
                     UPDATE users 
                     SET 
-                        username = :newuser
-                    WHERE authuuid = :cookie
+                        username = ?
+                    WHERE authuuid = ?
                 ");
                 
-                $updstmt->bindValue(':newuser', $newusername, SQLITE3_TEXT);
-                $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+                $updstmt->bind_param('ss', $newusername, $token);
                 $updstmt->execute();
-                $rowsaffected = $db->changes();
+                $rowsaffected += $updstmt->affected_rows;
             }
         } else {
             $msg = "Your chosen username<br>is not valid.";
@@ -97,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
         
     if (isset($_POST['password']) && $candoaction) {
-
         $pass = $_POST['password'];
         if (strlen($pass) < 15) {
             $msg = "New password is not long<br>enough. Suggestion: 6 random<br>uncommon english words.";
@@ -106,14 +65,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $updstmt = $db->prepare("
                 UPDATE users 
                 SET 
-                    pass = :pass
-                WHERE authuuid = :cookie
+                    pass = ?
+                WHERE authuuid = ?
             ");
             
-            $updstmt->bindValue(':pass', $newpass, SQLITE3_TEXT);
-            $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+            $updstmt->bind_param('ss', $newpass, $token);
             $updstmt->execute();
-            $rowsaffected = $db->changes();
+            $rowsaffected += $updstmt->affected_rows;
         }
     }
 
@@ -121,12 +79,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $updstmt = $db->prepare("
             UPDATE users 
             SET 
-                authuuid = :newcookie
-            WHERE authuuid = :cookie
+                authuuid = ?
+            WHERE authuuid = ?
         ");
         
-        $updstmt->bindValue(':newcookie', guidv4(), SQLITE3_TEXT);
-        $updstmt->bindValue(':cookie', $token, SQLITE3_TEXT);
+        $updstmt->bind_param('ss', guidv4(), $token);
         $updstmt->execute();
         header('Location: logout.php', true, 303);
         exit;
@@ -212,30 +169,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 your account is permanently wiped.
                 <br>
                 <br>
-                <button onclick="location.href='deleteaccount'">bich</button>
+                <button onclick="location.href='deleteaccount'">Delete Account</button>
             </div>
         </div>
-        <?php
-        $uid = null;
-        $db = new SQLite3('keys.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-        
-        $stmt = $db->prepare("
-            SELECT id
-            FROM users 
-            WHERE authuuid = :cookie
-        ");
-
-        $stmt->bindValue(':cookie', $_COOKIE['auth'], SQLITE3_TEXT);
-        $name = $stmt->execute();
-
-        if ($name) {
-            $row = $name->fetchArray(SQLITE3_ASSOC);
-            $uid = $row['id'];
-        }
-        if (isset($stmt)) $stmt->close();
-        if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
-        $db->close();
-        ?>
         </div>
         </div>
         <script src="../titleanim.min.js"></script>

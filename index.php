@@ -43,39 +43,6 @@ require_once 'auth.php';
         if ($authsuccessful) {
             echo "<a href=\"character\">character customization</a>
             <a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
-            if ($dispchar) {
-                require 'brickcolor.php';
-
-                $stmt = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
-                $stmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
-                $result = $stmt->execute();
-                $colorrow = $result ? $result->fetchArray(SQLITE3_ASSOC) : false; // source:http://genius.com/Ayesha-erotica-emo-boy-lyrics
-
-                if ($result) {
-                    $bpdata = [];
-                    $bodyparts = [
-                        "head" => $colorrow['head'],
-                        "trso" => $colorrow['torso'],
-                        "larm" => $colorrow['leftarm'],
-                        "rarm" => $colorrow['rightarm'],
-                        "lleg" => $colorrow['leftleg'],
-                        "rleg" => $colorrow['rightleg']
-                    ];
-                    foreach ($bodyparts as $part => $sqlvalue) {
-                        $color = $sqlvalue;
-                        $hex = array_search($color, $brickcolor);
-                        $bpdata[] = [
-                            'id' => $part,
-                            'hex' => $hex
-                        ];
-                    }
-                    $newjson = json_encode($bpdata);
-
-                    echo "<script>document.addEventListener(\"DOMContentLoaded\",e=>{let t=$newjson;t.forEach(e=>{let t=e.id,d=\"#\"+e.hex,n=document.getElementById(t);n&&(n.style.backgroundColor=d)})});</script>";
-                }
-                
-                if (isset($stmt)) $stmt->close();
-            }
         } else {
             echo "<a href=\"login\">Login</a>
             <a href=\"register\">Register</a>";
