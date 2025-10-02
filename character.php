@@ -10,24 +10,31 @@ $color_map = [
     'larm_color' => 'leftarm',
     'rarm_color' => 'rightarm'
 ];
+
+if ($uid === null) {
+    http_response_code(500);
+    die("User ID not found. Cannot perform character operations.");
+}
+
 $db->exec("
 CREATE TABLE IF NOT EXISTS avatars (
     id INTEGER PRIMARY KEY,
-    head INTEGER,
-    torso INTEGER,
-    leftarm INTEGER,
-    rightarm INTEGER,
-    leftleg INTEGER,
-    rightleg INTEGER
+    head INTEGER DEFAULT 0,
+    torso INTEGER DEFAULT 0,
+    leftarm INTEGER DEFAULT 0,
+    rightarm INTEGER DEFAULT 0,
+    leftleg INTEGER DEFAULT 0,
+    rightleg INTEGER DEFAULT 0
 )"); 
 
 $insertAvatarStmt = $db->prepare("
     INSERT OR IGNORE INTO avatars (id) VALUES (:uid)
 ");
 
+$db->busyTimeout(5000);
 $insertAvatarStmt->bindValue(':uid', $uid, SQLITE3_INTEGER);
 $insertAvatarStmt->execute();
-$insertAvatarStmt->reset();
+$insertAvatarStmt->close();
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -66,12 +73,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute();
             echo "Saved!";
             $stmt->close();
-            $db->close();
             exit;
         } else {
             http_response_code(400);
             echo "Invalid color data received.";
-            $db->close();
             exit;
         }
     }
@@ -80,9 +85,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $stmt_fetch = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = :uid");
 $stmt_fetch->bindValue(':uid', $uid, SQLITE3_INTEGER);
 $result_fetch = $stmt_fetch->execute();
-$colorrow = $result_fetch ? $result_fetch->fetchArray(SQLITE3_ASSOC) : false; 
-$stmt_fetch->close();
 
+$colorrow = false;
+if ($result_fetch) {
+    $colorrow = $result_fetch->fetchArray(SQLITE3_ASSOC);
+    $result_fetch->finalize();
+}
+$stmt_fetch->close();
 
 ?>
 <!DOCTYPE html>
@@ -115,7 +124,7 @@ $stmt_fetch->close();
                     <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
                     <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
                     <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                    <div class="left">
+                    <div class="btmleft">
                         <span id="whatdiduselect">click<br>guy</span>
                         <div id="plrform"> 
                             <button id="saveButton" type="button">Save</button>
@@ -133,7 +142,7 @@ $stmt_fetch->close();
                 </div>
             </div>
             <div class="border">
-                <button onclick="render();" id="renderstat">Render</button>
+                <button onclick="render();" id="renderstat" class="left">Render</button>
                 <br>
                 <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
             </div>
@@ -181,9 +190,6 @@ document.addEventListener(\"DOMContentLoaded\", e => {
 });
 </script>";
         }
-        
-        if (isset($insertAvatarStmt)) $insertAvatarStmt->close();
-        $db->close();
         $rightside = true;
         require "sidebars.php";
         ?>

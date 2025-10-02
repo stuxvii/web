@@ -6,7 +6,7 @@
     </head>
     <body>
         <div class="diva">
-            <em>Information about who I am. (This whole page is satire.)</em>
+            <em>Information about who (me), the mantainer of this service, is. (This whole page is satire.)</em>
             I am acidbox, previously known as stuxvii, pussyslayer69, skibiditoiletsigmaslippers, the guy who made the lord of the rings movies,
             the guy who brought bonzi buddy back to relevance, the guy who made all those siIvagunner mashups, 
             that one guy who got 40 million subscribers on youtube from recording himself getting scared at children's games, 

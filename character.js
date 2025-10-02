@@ -106,26 +106,23 @@ function render() {
     save();
     var xmlhttp = new XMLHttpRequest();
     const btn = document.getElementById("renderstat");
-    btn.innerHTML = "Standby...";
+    btn.innerHTML = "Rendering...";
     btn.disabled = true;
     xmlhttp.onreadystatechange = function() {
+        if (this.status == 429) {
+            btn.innerHTML = "You need to wait 15s between renders.";
+        }
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("render").src = this.responseText + "?t=" + new Date().getTime();
             btn.innerHTML = "Done.";
             console.log(this.responseText);
         }
+        setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Render';
+        }, 3000); 
     };
-
-    let data = {};
-    const bodyparts = document.querySelectorAll('#char .bodypart');
-
-    bodyparts.forEach(function(part) {
-        const id = part.id;
-        const color = part.getAttribute('color');
-        
-        data[id] = color;
-    });
-    xmlhttp.open("POST", "render.php", true);
-    xmlhttp.setRequestHeader("Content-Type", "application/json"); 
-    xmlhttp.send(JSON.stringify(data));
+    
+    xmlhttp.open("GET", "render.php", true);
+    xmlhttp.send();
 }

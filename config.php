@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require "sidebars.php";
         ?>
         <div class="diva">
-            <em>For your convinenience, <br>these settings persist<br>across devices.</em>
+            <em>For your convenience, these <br>settings persist across devices.</em>
             
             <span id="status-message" style="margin-bottom: 15px; max-width:14em;"></span>
             
@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="brightness">Moving background</label>
                 <br>
                 <input type="checkbox" id="displaychar" name="displaychar" <?php if($dispchar){echo"checked";}?>>
-                <label for="displaychar">Display your <br> character in the <br> main page</label>
+                <label for="displaychar">Display your  character in the <br> main page</label>
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
                 <label for="sidebars">Decorative sidebars<label>
