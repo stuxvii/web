@@ -32,7 +32,9 @@ require_once 'auth.php';
         <div class="btmleft">
             <?php
             if ($authsuccessful) {
+                echo "<a href=\"logout\">log out</a>";
                 echo "<span>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
+                echo "<a href=\"character\">character customization</a>";
                 if ($dispchar) {echo "<img height='240px' id='render' src='renders/$uid" . ".png'>";}
             }
             ?>
@@ -41,8 +43,7 @@ require_once 'auth.php';
         <div class="diva">
         <?php 
         if ($authsuccessful) {
-            echo "<a href=\"character\">character customization</a>
-            <a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
+            echo "<img src='processing.png'>";
         } else {
             echo "<a href=\"login\">Login</a>
             <a href=\"register\">Register</a>";
@@ -52,7 +53,7 @@ require_once 'auth.php';
         <div class="rite">
             <?php
             if (!empty($token)) {
-                echo "<a href=\"config\">Settings</a>";
+                echo "<a href=\"config\">Settings</a><a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";
             if ($opperms) {
                 echo "<a href=\"admin/\">Admin panel</a>";
             }

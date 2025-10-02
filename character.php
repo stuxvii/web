@@ -111,20 +111,18 @@ $stmt_fetch->close();
         require "sidebars.php";
         ?>
         <div class="diva" style="flex-direction:row;">
-            <div class="charborder">
-                <div id="char">
-                    <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"><img src="images/epicface.png" width='56' height='56'></span>
-                    <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-                    <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+            <div class="charborder" id="char">
+                <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);">
+                    <img src="images/epicface.png" width='56' height='56'>
+                </span>
+                <div class="horiz">
                     <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
                     <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
                     <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                    <div class="btmleft">
-                        <span id="whatdiduselect">click<br>guy</span>
-                        <div id="plrform"> 
-                            <button id="saveButton" type="button">Save</button>
-                        </div>
-                    </div>
+                </div>
+                <div class="horiz">
+                    <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+                    <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
                 </div>
             </div>
             <div class="border">
@@ -137,9 +135,11 @@ $stmt_fetch->close();
                 </div>
             </div>
             <div class="border">
-                <button onclick="render();" id="renderstat" class="left">Render</button>
-                <br>
-                <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
+                <div class="vert">
+                    <button onclick="render();" id="renderstat" class="left">Save</button>
+                    <br>
+                    <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
+                </div>
             </div>
         </div>
         <script src="../character.js"></script>

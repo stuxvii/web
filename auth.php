@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/databaseconfig.php';
-/* Info about token:
+/* Info about token (and light yap):
 Generated using a slightly modified guidv4, 
 to not include hyphens because i think they look weird.
 also it makes it annoying to do regex on.
@@ -42,7 +42,6 @@ $uid = null;
 if (empty($token)) {
     $authsuccessful = false;
 } else {
-    
     if (!preg_match('/^[0-9a-f]{32}$/', $token)) { // I don't want to waste a whole entire SQL request on a token that shouldn't even be valid in the first place 😭🙏
         error_log($token);
         header("Location: logout.php");
@@ -110,6 +109,7 @@ if (empty($token)) {
     $clrrow = $colors ? $colors->fetch_assoc() : false;
     $fetchavatar->close();
     
+    // if values aren't found js set them as false man
     $theme = (bool)($prefrow['appearance'] ?? false);
     $movebg = (bool)($prefrow['movingbg'] ?? false);
     $dispchar = (bool)($prefrow['dispchar'] ?? false);

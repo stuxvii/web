@@ -81,36 +81,14 @@ async function save() {
             method: 'POST',
             body: formData 
         });
-
-        if (response.ok) {
-            const resptext = await response.text(); 
-            
-            bdpartstt.innerHTML = resptext; 
-            
-            setTimeout(() => {
-                if (bdpartstt.innerHTML === 'Saved!') {
-                    bdpartstt.innerHTML = 'click<br>guy';
-                }
-            }, 3000); 
-
-        } else {
-            bdpartstt.innerHTML = 'Error saving: ' + response.status;
-            console.error('Save failed:', await response.text());
-        }
-
     } catch (error) {
-        bdpartstt.innerHTML = 'Network Error';
         console.error('Fetch operation failed:', error);
     }
 }
-document.getElementById('saveButton').addEventListener('click', function(e) {
-    save();
-});
 
 async function render() {
-    // Constants "rs" and "renderimg" were set earlier in code, they are not needed to be re-declared.
     await save();
-    rs.innerHTML = "Rendering..."; // I hope it isn't a problem, but i renamed the "renderstat" variable to just "rs" for simplicity.
+    rs.innerHTML = "Saving...";
     rs.disabled = true;
 
     try {
@@ -121,8 +99,8 @@ async function render() {
         const resp = await request.text();
         const stat = request.status;
 
-        if (stat == 429) { // Backend returns 429 if we're on cooldown.
-            rs.innerHTML = "You need to wait 15s between renders.";
+        if (stat == 429) {
+            rs.innerHTML = "You need to wait between renders.";
         } else
         if (request.ok) {
             renderimg.setAttribute('src', resp + "?t=" + new Date().getTime());
@@ -138,7 +116,7 @@ async function render() {
         rs.innerHTML = "Error: " + error;
     } finally {
         setTimeout(() => {
-            rs.innerHTML = "Render"
+            rs.innerHTML = "Save"
             rs.disabled = false
         }, 3000);
     }
