@@ -25,11 +25,11 @@ point of failure anywhere in here... But yeah i am just a singular person,
 and this whole entire project rests on me, i may potentially skim
 over something i didn't want to accidentally ignore.
 
-There is no way for anyone to get the keys.db ever unless either
+There is no way for anyone to get the database ever unless either
 A. there turns out to be some actually massive exploit in php all along
-where people can have RCE and just straight up fetch the keys.db file themselves
+where people can have RCE and just straight up fetch the database themselves
 B. i get infected with a remote access trojan and someone comes in and manually yanks
-the keys.db.
+the database.
 
 This cookie is only ever invalidated if the user either
 A. changes their username
@@ -78,6 +78,33 @@ if (empty($token)) {
     $opperms = $row['isoperator'] ?? null;
 
     $authsuccessful = true; // user is valid ^_^
+
+    $checkifecon = $db->prepare("
+        SELECT money, inv FROM economy WHERE id = ?
+    "); // get economy values 
+
+    $checkifecon->bind_param('i', $uid);
+    $checkifecon->execute();
+    $checkifecon->store_result();
+
+    $money = 100;
+    $inv = '';
+
+    $checkifecon->bind_result($money, $inv);
+
+    if ($checkifecon->num_rows === 0) { // if no economy file was found, make a new one
+        $initmoneystmt = $db->prepare("
+            INSERT INTO economy (id, money, inv) VALUES (?, ?, ?)
+        ");
+
+        $initmoneystmt->bind_param('is', $uid, $defaultmon, $defaultinv);
+        $defaultinv = '';
+        $defaultmon = 100;
+        $initmoneystmt->execute();
+        $initmoneystmt->close();
+    }
+
+    $checkifecon->close();
 
     $fetchsettings = $db->prepare("
     SELECT appearance, movingbg, dispchar, sidebarid, sidebars
@@ -136,23 +163,31 @@ if (empty($token)) {
     $rarm = (int)($clrrow['rightarm'] ?? 0);
 
     if ($_SERVER['PHP_SELF'] == "/auth.php") {
-        echo "Git Docksed xD";echo "<br>Ur Name: ";
-        echo $name;echo "<br> Ur Discord Tag: ";
-        echo $discordtag;echo "<br> Ur Hashed Password: ";
-        echo $passwordhash;echo "<br> Are you OP? ";
+        echo "<link rel='stylesheet' href='../styles.css'>";
+        echo "<div class='diva'>";
+        echo "Git Docksed xD";
+        echo "<br>Ur Name: ";echo $name;
+        echo "<br> Ur Discord Tag: ";echo $discordtag;
+        echo "<br> Ur Eye Pees: ";echo $_SERVER['REMOTE_ADDR'];
+        echo "<br> Are you OP? ";
         if ($opperms == 1) {
             echo "Your are 31337 Hax0r.";
         } else {
             echo "You are a mere pleb. xD";
         }
-        echo "<br>";
-        echo "Ur Settings m9.<br>";
+        echo "<br>Your moneys: " . $money;
+        echo "<br>--Ur Settings m9.<br>";
 
-        echo $theme;
-        echo $movebg;
-        echo $dispchar;
-        echo $sidebarid;
-        echo $sidebars;
+        $sidebarnames = [
+            1 => "day",
+            2 => "afternoon",
+            3 => "night"
+        ];
+        echo "your theme: " . ($theme ? "light" : "dark");
+        echo "<br>do you like nausea? " . ($movebg ? "yes" : "no");
+        echo "<br>are you confident about yourself? " . ($dispchar ? "yes" : "no");
+        echo "<br>your sidebar: " . $sidebarnames[$sidebarid];
+        echo "<br>is this web 1.0? " . ($sidebars ? "yes" : "no");
     }
 }
 ?>

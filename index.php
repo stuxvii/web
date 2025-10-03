@@ -29,28 +29,28 @@ require_once 'auth.php';
         require "sidebars.php";
         ?>
         <div class="content">
-        <div class="btmleft">
+        <div class="btm">
             <?php
             if ($authsuccessful) {
                 echo "<a href=\"logout\">log out</a>";
                 echo "<span>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
                 echo "<a href=\"character\">character customization</a>";
-                if ($dispchar) {echo "<img height='240px' id='render' src='renders/$uid" . ".png'>";}
+                if ($dispchar) {echo "<img height='240px' class='jump' id='render' src='renders/$uid" . ".png'>";}
             }
             ?>
         </div>
 
-        <div class="diva">
+        <div class="mid">
         <?php 
         if ($authsuccessful) {
-            echo "<img src='processing.png'>";
+            echo "<img class='bounce' src='processing.png' id='speen'>";
         } else {
             echo "<a href=\"login\">Login</a>
             <a href=\"register\">Register</a>";
         }
         ?>
         </div>
-        <div class="rite">
+        <div class="top rite">
             <?php
             if (!empty($token)) {
                 echo "<a href=\"config\">Settings</a><a href=\"mwrtng/\" class=\"mwrtng\">mewity rating</a>";

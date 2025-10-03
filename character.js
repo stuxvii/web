@@ -81,6 +81,13 @@ async function save() {
             method: 'POST',
             body: formData 
         });
+
+        if (response.ok) {
+            rs.innerHTML = "Saving...";
+        } else {
+            console.error('Save failed:', await response.text());
+        }
+
     } catch (error) {
         console.error('Fetch operation failed:', error);
     }
@@ -88,10 +95,10 @@ async function save() {
 
 async function render() {
     await save();
-    rs.innerHTML = "Saving...";
     rs.disabled = true;
-
+    rs.innerHTML = "Saving...";
     try {
+        rs.innerHTML = "Rendering...";
         const request = await fetch("render.php", {
             method: 'GET'
         });
@@ -100,7 +107,7 @@ async function render() {
         const stat = request.status;
 
         if (stat == 429) {
-            rs.innerHTML = "You need to wait between renders.";
+            rs.innerHTML = "Saved <br>(render on cooldown).";
         } else
         if (request.ok) {
             renderimg.setAttribute('src', resp + "?t=" + new Date().getTime());

@@ -187,7 +187,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 event.preventDefault(); 
             
                 statusMessage.textContent = '';
-                statusMessage.style.color = 'black';
                 statusMessage.textContent = 'Saving...';
                 const formData = new FormData(form);
                 const actionUrl = form.getAttribute('action');

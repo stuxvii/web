@@ -15,3 +15,11 @@ renders/
 
 # leaking my own shit is not rlly cool dud
 databaseconfig.php
+
+# copyright
+*.mp3
+*.ogg
+*.wav
+*.opus
+*.aiff
+*.webm

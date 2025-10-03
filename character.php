@@ -24,7 +24,6 @@ $insertAvatarStmt->bind_param('i', $uid);
 $insertAvatarStmt->execute();
 $insertAvatarStmt->close();
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['is_ajax_save']) && $_POST['is_ajax_save'] == '1') {
         $update_data = [];
