@@ -139,7 +139,7 @@ if (empty($token)) {
     // if values aren't found js set them as false man
     $theme = (bool)($prefrow['appearance'] ?? false);
     $movebg = (bool)($prefrow['movingbg'] ?? false);
-    $dispchar = (bool)($prefrow['dispchar'] ?? false);
+    $dispchar = (int)($prefrow['dispchar'] ?? false);
     $sidebarid = (int)($prefrow['sidebarid'] ?? 0);
     $sidebars = (bool)($prefrow['sidebars'] ?? false);
     

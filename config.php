@@ -136,31 +136,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <hr>
                 <span>Appearance</span>
                 <hr>
-                <input type="radio" id="light" name="thememode" value="light"<?php if($theme){echo"checked";}?>>
-                <label for="brightness">Light mode</label>
-                <br>
                 <input type="radio" id="dark" name="thememode" value="dark"<?php if(!$theme){echo"checked";}?>>
-                <label for="brightness">Dark mode</label>
+                <label for="brightness">Dark</label>
+                <br>
+                <input type="radio" id="light" name="thememode" value="light"<?php if($theme){echo"checked";}?>>
+                <label for="brightness">Light</label>
                 <hr>
                 <span>Site preferences</span>
                 <hr>
+
+                <label for="displaychar">Character style</label>
+                <br>
+                <select id="displaychar" name="displaychar" style="margin-top:6px;">
+                    <option value="0" <?php if($dispchar==0){echo"selected";}?>>Hide</option>
+                    <option value="1" <?php if($dispchar==1){echo"selected";}?>>2D</option>
+                    <option value="2" <?php if($dispchar==2){echo"selected";}?>>3D</option>
+                </select>
+                <br>
                 <input type="checkbox" id="movingbg" name="movingbg" <?php if($movebg){echo"checked";}?>>
                 <label for="brightness">Moving background</label>
-                <br>
-                <input type="checkbox" id="displaychar" name="displaychar" <?php if($dispchar){echo"checked";}?>>
-                <label for="displaychar">Display your  character in the <br> main page</label>
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
                 <label for="sidebars">Decorative sidebars<label>
                 <br>
-                <input type="radio" id="1" name="sidebarid" value="1" <?php if($sidebarid==1){echo"checked";}?>>
-                <label for="1">Day</label><br>
-
-                <input type="radio" id="2" name="sidebarid" value="2" <?php if($sidebarid==2){echo"checked";}?>>
-                <label for="2">Afternoon</label><br>
-
-                <input type="radio" id="3" name="sidebarid" value="3" <?php if($sidebarid==3){echo"checked";}?>>
-                <label for="3">Night</label>
+                <select id="sidebarid" name="sidebarid" style="margin-top:6px;">
+                    <option value="1" <?php if($sidebarid==1){echo"selected";}?>>Day</option>
+                    <option value="2" <?php if($sidebarid==2){echo"selected";}?>>Afternoon</option>
+                    <option value="3" <?php if($sidebarid==3){echo"selected";}?>>Night</option>
+                </select>
                 <hr>
                 <span><a href="accountmanagementdangerousactions">Account management</a></span>
                 <hr>

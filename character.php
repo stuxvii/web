@@ -76,17 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$stmt_fetch = $db->prepare("SELECT head, torso, leftarm, rightarm, leftleg, rightleg FROM avatars WHERE id = ?");
-$stmt_fetch->bind_param('i', $uid);
-$stmt_fetch->execute();
-$result_fetch = $stmt_fetch->get_result();
-
-$colorrow = false;
-if ($result_fetch) {
-    $colorrow = $result_fetch->fetch_assoc();
-}
-$stmt_fetch->close();
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -147,15 +136,14 @@ $stmt_fetch->close();
             <a href="/">Home page</a>
         </div>
         <?php
-        if ($colorrow) {
             $bpdata = [];
             $bodyparts_map = [
-                "head" => $colorrow['head'],
-                "trso" => $colorrow['torso'],
-                "larm" => $colorrow['leftarm'],
-                "rarm" => $colorrow['rightarm'],
-                "lleg" => $colorrow['leftleg'],
-                "rleg" => $colorrow['rightleg']
+                "head" => $head,
+                "trso" => $trso,
+                "larm" => $larm,
+                "rarm" => $rarm,
+                "lleg" => $lleg,
+                "rleg" => $rleg
             ];
             foreach ($bodyparts_map as $part_id => $sql_color_id) {
                 $color_id = $sql_color_id;
@@ -183,7 +171,6 @@ document.addEventListener(\"DOMContentLoaded\", e => {
     });
 });
 </script>";
-        }
         $rightside = true;
         require "sidebars.php";
         ?>

@@ -147,9 +147,7 @@ a:visited {
     opacity: 60%;
     mix-blend-mode:soft-light;
 }
-.left {
-    display: flex;
-}
+
 .btmh {
     display: flex;
     flex-direction: column-reverse;
@@ -182,6 +180,7 @@ a:visited {
 
 .left {
     text-align: left;
+    display:flex;
     align-self: left;
 }
 
@@ -190,7 +189,10 @@ label {
     margin: 0px;
 }
 
-input, button {
+input, button, select {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
     padding: 5px;
     font-size: 0.8em;
 }
@@ -202,9 +204,6 @@ input {
 }
 
 button {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    border: 1px solid var(--secondary-color);
     cursor: url('cursors/chicken.cur'), auto;
 }
 

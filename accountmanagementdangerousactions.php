@@ -109,70 +109,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ?>
     </head>
     <body>
-        <div class="divaleft">
-            <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>">
-                <span>New username</span>
-                <hr>
-                <input type="username" id="username" name="username" maxlength="20">
+        <div class="sidebars">
+        <?php 
+        global $sidebarid;
+        global $sidebars;
+        require "sidebars.php";
+        ?>
+        <div class="content">
+            <div class="left midh">
+                <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>">
+                    <span>New username</span>
+                    <hr>
+                    <input type="username" id="username" name="username" maxlength="20">
+                    <br>
+                    (3-20 chars, a-z/0-9/_)
+                    <br>
+                    <br>
+                    <span>New password</span>
+                    <hr>
+                    <input type="password" id="password" name="password">
+                    <br>
+                    (15 characters minimum)
+                    <br>
+                    <br>
+                    <br>
+                    Changing your credentials <br>is going to log you out &
+                    <br>
+                    force you to log back in.
+                    <br><br>
+                    Use your current password <br>to authorize any changes.
+                    <hr>
+                    <br>
+                    <span>Password confirmation</span>
+                    <br>
+                    <input type="password" id="confirm" name="confirm">
+                    <br>
+                    <br>
+                    <input type="submit" value="Modify"> 
+                    <br>
+                    <?php if (!empty($msg)) { echo $msg; } ?>
+                </form>
+            </div>
+            <div class="rite midh">
+                <span>Danger zone</span>
                 <br>
-                (3-20 chars, a-z/0-9/_)
+                <span>This section makes the option of </span>
+                <span>permanently erasing your</span>
+                <span>account available to you.</span>
                 <br>
+                <span>This process is completely irreversible, </span>
+                <span>and once activated is unable to be reverted.</span>
                 <br>
-                <span>New password</span>
-                <hr>
-                <input type="password" id="password" name="password">
-                <br>
-                (15 characters minimum)
-                <br>
-                <br>
-                <br>
-                Changing your credentials <br>is going to log you out &
-                <br>
-                force you to log back in.
-                <br><br>
-                Use your current password <br>to authorize any changes.
-                <hr>
-                <br>
-                <span>Password confirmation</span>
-                <br>
-                <input type="password" id="confirm" name="confirm">
-                <br>
-                <br>
-                <input type="submit" value="Modify"> 
-                <br>
-                <?php if (!empty($msg)) { echo $msg; } ?>
-            </form>
-        </div>
-        <div class="divaright">
-            <div>
-                Danger zone
-                <hr>
-                This section makes the option of 
-                <br>
-                permanently erasing your
-                <br>
-                account available to you.
-                <br>
-                <br>
-                This process is completely irreversible, 
-                <br>
-                and once activated is unable to be reverted.
-                <br>
-                <br>
-                Only do this if you wish to fully
-                <br>
-                abandon the service, as you wont be let back in.
-                <br>
-                <br>
-                You will be asked twice before 
-                <br>
-                your account is permanently wiped.
-                <br>
+                <span>You will be asked twice before </span>
+                <span>your account is permanently wiped.</span>
                 <br>
                 <button onclick="location.href='deleteaccount'">Delete Account</button>
             </div>
         </div>
-        </div>
+        <?php 
+        global $sidebarid;
+        global $sidebars;
+        $rightside = true;
+        require "sidebars.php";
+        ?>
         </div>
         <script src="../titleanim.min.js"></script>
     </body>
