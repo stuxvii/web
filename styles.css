@@ -2,12 +2,10 @@
     0% {
         background-position: right 0px bottom 0px;
     }
-
     100% {
         background-position: right -128px bottom -128px;
     }
 }
-
 
 :root {
     --primary-color: #000;
@@ -18,28 +16,37 @@
 
 html,
 body {
+    margin: 0;
+}
+
+html,
+body,
+.sidebars {
+    height: 100vh;
+}
+
+html,
+body,
+.content,
+.sidebars {
+    width: 100%;
+}
+
+html,
+body,
+button {
     cursor: url('cursors/kangel.cur'), auto;
-    margin: 0px;
 }
 
 body {
-    background-image:
-        var(--bgimg);
-    image-rendering:
-        pixelated;
-    background-position:
-        center;
-    background-color:
-        #222;
-
-    color:
-        var(--secondary-color);
-    font-size:
-        1.5em;
-    font-family:
-        system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-
-    animation: movebg 10s infinite cubic-bezier(0, 0.1, 0, 1);
+    background-image: var(--bgimg);
+    image-rendering: pixelated;
+    background-position: center;
+    background-color: #222;
+    color: var(--secondary-color);
+    font-size: 1.5em;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    animation: movebg 10s infinite linear;
     overflow: hidden;
 }
 
@@ -47,14 +54,10 @@ img {
     image-rendering: pixelated;
 }
 
-a {
-    color: var(--secondary-color);
-}
-
+a,
 a:visited {
     color: var(--secondary-color);
 }
-
 
 .info {
     background-color: black;
@@ -64,22 +67,22 @@ a:visited {
     color: var(--secondary-color);
 }
 
-.border {
-    border: 2px solid var(--secondary-color);
-    display: flex;
-}
-
 .buttons {
     display: flex;
     flex-direction: row;
     font-family: monospace;
 }
 
-.msgbox {
+.msgbox,
+.diva,
+.border {
     display: flex;
+    max-height: 1000px;
+}
+
+.msgbox {
     align-items: center;
     flex-direction: row;
-    max-height: 1000px;
 }
 
 .warn {
@@ -90,54 +93,49 @@ a:visited {
     padding: 5px;
 }
 
-
-.diva {
-    display: flex;
-    position: absolute;
+.diva,
+.border {
     flex-direction: column;
-    left: 50%;
-    top: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    max-height: 1000px;
+    justify-content: center;
+    align-items: center;
+}
+
+.border {
+    border: 2px solid var(--secondary-color);
+    position: relative;
 }
 
 .content {
     justify-content: space-between;
     display: flex;
     flex-direction: row;
-    height: 100vh;
-    width: 100%;
 }
 
 .sidebars {
     position: relative;
     display: flex;
     flex-direction: row;
-    height: 100vh;
     justify-content: space-between;
-    width: 100vw;
 }
 
 .sbleft {
     align-self: flex-start;
-    height: 100vh;
 }
 
 .sbright {
     align-self: flex-end;
+}
+
+.sbright img,
+.sbleft img {
     height: 100vh;
 }
 
 .sbright img {
-    height: 100vh;
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
 }
 
-.sbleft img {
-    height: 100vh;
-}
 .lsd {
     pointer-events: none;
     position: absolute;
@@ -145,16 +143,30 @@ a:visited {
     height: 100%;
     z-index: 1000;
     opacity: 60%;
-    mix-blend-mode:soft-light;
+    mix-blend-mode: soft-light;
 }
 
-.btmh {
+.btmh,
+.midh,
+.toph,
+.left,
+.horiz,
+.vert {
     display: flex;
-    flex-direction: column-reverse;
+}
+
+.btmh,
+.toph {
+    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
     padding: 0.5em;
 }
+
+.btmh {
+    flex-direction: column-reverse;
+}
+
 .midh {
     overflow: auto;
     flex-direction: column;
@@ -163,13 +175,6 @@ a:visited {
     justify-content: center;
     padding: 0.5em;
     z-index: 10;
-}
-.toph {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 0.5em;
 }
 
 .rite {
@@ -180,50 +185,41 @@ a:visited {
 
 .left {
     text-align: left;
-    display:flex;
-    align-self: left;
 }
 
 label {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
-input, button, select {
+input,
+button,
+select,
+input[type="submit"] {
     background-color: var(--primary-color);
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
+}
+
+input,
+button,
+select {
     padding: 5px;
     font-size: 0.8em;
 }
+
 input {
-    margin: 0px;
-    color: var(--secondary-color);
-    border: 1px solid var(--secondary-color);
-    background: var(--primary-color);
+    margin: 0;
 }
 
-button {
+button,
+input[type="submit"] {
     cursor: url('cursors/chicken.cur'), auto;
 }
 
 input[type="submit"] {
     -webkit-appearance: none;
     appearance: none;
-    color: var(--secondary-color);
-    border: 1px solid var(--secondary-color);
-    background: var(--primary-color);
-    cursor: url('cursors/chicken.cur'), auto;
-}
-
-.charborder {
-    display: flex;
-    border: 2px solid var(--secondary-color);
-    position: relative;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    max-height: 1000px;
 }
 
 .bodypart {
@@ -240,7 +236,7 @@ input[type="submit"] {
 #head {
     height: 60px;
     width: 60px;
-    top: 0px;
+    top: 0;
     left: 80px;
 }
 
@@ -254,7 +250,6 @@ input[type="submit"] {
 .colorpicker {
     display: grid;
     grid-template-columns: repeat(13, 20px);
-    padding-right: 0px;
     padding: 0.1em;
 }
 
@@ -277,13 +272,13 @@ span img {
 }
 
 .horiz {
-    display: flex;
+    flex-direction: row
 }
 
 .vert {
     flex-direction: column;
-    display: flex;
 }
+
 ::-webkit-scrollbar {
     display: none;
 }

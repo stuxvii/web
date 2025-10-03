@@ -13,7 +13,7 @@ require_once 'auth.php';
                 echo "<style>:root{--primary-color: #fff;--secondary-color: #000;--bgimg: url(\"cargonetlight.bmp\");}</style>";
             }
             if (!$movebg) {
-                echo "<style>body{animation-name: none;}</style>";
+                #echo "<style>body{animation-name: none;}</style>";
             }}
         ?>
     </head>
@@ -26,11 +26,11 @@ require_once 'auth.php';
         <div class="btmh">
             <?php
             if ($authsuccessful) {
-                echo "<span>Hey there, " . $name . " (@" . $discordtag . ")" . " (UserID: " . $uid . ")" . "</span>";
-                echo "<a href=\"character\">character customization</a>";
-                if ($dispchar === 1) {echo "<img height='240px' class='jump' id='render' src='renders/$uid" . ".png'>";}
-                if ($dispchar === 2) {echo "
-                 <div class=\"charborder\" id=\"char\">
+                echo "<span>Hey there, " . $name . ".</span>";
+                echo "<span>₱" . $money . "</span>";
+                if ($dispchar === 2) {echo "<img height='240px' class='jump' id='render' src='renders/$uid" . ".png'>";
+                } else { if ($dispchar === 1) {echo "
+                 <div class=\"border\" id=\"char\">
                 <span class=\"bodypart\" id=\"head\" color=\"1009\" style=\"background-color: rgb(255, 255, 0);\">
                    <img src=\"images/epicface.png\" width='56' height='56'>
                 </span>
@@ -43,7 +43,7 @@ require_once 'auth.php';
                 <span class=\"bodypart limb\" id=\"lleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
                 <span class=\"bodypart limb\" id=\"rleg\" color=\"301\" style=\"background-color: rgb(80, 109, 84);\"></span>
                 </div>
-            </div>";}
+            </div>";}}
             }
             ?>
         </div>
@@ -61,10 +61,12 @@ require_once 'auth.php';
         <div class="rite">
             <?php
             if (!empty($token)) {
+                echo "<a href=\"character\">Character customization</a>";
                 echo "<a href=\"https://discord.gg/7JwYGHAvJV\">Official Discord server</a>";
                 if ($opperms) {
                     echo "<a href=\"admin/\">Admin panel</a>";
                 }
+                echo "<a href=\"inventory\">Inventory</a>";
                 echo "<a href=\"config\">Settings</a>";
                 echo "<a href=\"logout\">log out</a>";
             }
@@ -74,7 +76,7 @@ require_once 'auth.php';
         <?php 
         $rightside = true;
         require "sidebars.php";
-        if ($dispchar === 2) {
+        if ($dispchar === 1) {
             require_once 'brickcolor.php';
             $bpdata = [];
             $bodyparts_map = [

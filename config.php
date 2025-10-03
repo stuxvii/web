@@ -26,7 +26,7 @@ $newconf->close();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $theme = false;
     $movebg = false;
-    $dispchar = false;
+    $dispchar = 0;
     $sidebars = false;
 
     if (isset($_POST['thememode'])) {
@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if (isset($_POST['displaychar'])) {
         if ($_POST['displaychar']) {
-            $dispchar = true;
+            $dispchar = (int)$_POST['displaychar'];
         }
     }
     if (isset($_POST['sidebars'])) {
@@ -128,6 +128,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require "sidebars.php";
         ?>
         <div class="diva">
+
+            <a href="/">Home page</a>
             <em>For your convenience, these <br>settings persist across devices.</em>
             
             <span id="status-message" style="margin-bottom: 15px; max-width:14em;"></span>
@@ -137,10 +139,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <span>Appearance</span>
                 <hr>
                 <input type="radio" id="dark" name="thememode" value="dark"<?php if(!$theme){echo"checked";}?>>
-                <label for="brightness">Dark</label>
+                <label for="dark">Dark</label>
                 <br>
                 <input type="radio" id="light" name="thememode" value="light"<?php if($theme){echo"checked";}?>>
-                <label for="brightness">Light</label>
+                <label for="light">Light</label>
                 <hr>
                 <span>Site preferences</span>
                 <hr>
@@ -154,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </select>
                 <br>
                 <input type="checkbox" id="movingbg" name="movingbg" <?php if($movebg){echo"checked";}?>>
-                <label for="brightness">Moving background</label>
+                <label for="movingbg">Moving background</label>
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
                 <label for="sidebars">Decorative sidebars<label>
@@ -170,8 +172,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="submit" value="Save">
             </form>
         </div>
-        <div class="rite">
-                <a href="/">Home</a></div>
         <?php 
         $rightside = true;
         require "sidebars.php";

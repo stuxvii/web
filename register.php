@@ -115,7 +115,7 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
     }
 }
 ?>
-        <div class="diva">
+        <div class="midh">
             <div id="deleteifsuccess">
                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
 

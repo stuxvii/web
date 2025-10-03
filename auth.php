@@ -139,7 +139,7 @@ if (empty($token)) {
     // if values aren't found js set them as false man
     $theme = (bool)($prefrow['appearance'] ?? false);
     $movebg = (bool)($prefrow['movingbg'] ?? false);
-    $dispchar = (int)($prefrow['dispchar'] ?? false);
+    $dispchar = (int)($prefrow['dispchar'] ?? 0);
     $sidebarid = (int)($prefrow['sidebarid'] ?? 0);
     $sidebars = (bool)($prefrow['sidebars'] ?? false);
     
@@ -185,7 +185,6 @@ if (empty($token)) {
         ];
         echo "your theme: " . ($theme ? "light" : "dark");
         echo "<br>do you like nausea? " . ($movebg ? "yes" : "no");
-        echo "<br>are you confident about yourself? " . ($dispchar ? "yes" : "no");
         echo "<br>your sidebar: " . $sidebarnames[$sidebarid];
         echo "<br>is this web 1.0? " . ($sidebars ? "yes" : "no");
     }
