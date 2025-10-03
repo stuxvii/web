@@ -79,17 +79,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     WHERE id = ?
     ");
 
-    // --- FIX IS HERE: Convert all necessary variables to integers ---
-
-    // Casting booleans to integers (0 or 1) for the database TINYINT(1) field.
     $a = (int)$theme;
     $b = (int)$movebg;
     $c = (int)$dispchar;
-    $d = (int)$sidebarid; // Already guaranteed to be int, but for consistency
+    $d = (int)$sidebarid;
     $e = (int)$sidebars;
-    $id = (int)$uid; // Ensure UID is treated as an integer
+    $id = (int)$uid;
 
-    // Now bind the new variables ($a, $b, $c, $d, $e, $id) by reference
     $updstmt->bind_param('iiiiii', 
         $a, 
         $b, 

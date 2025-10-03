@@ -97,9 +97,9 @@ if (empty($token)) {
             INSERT INTO economy (id, money, inv) VALUES (?, ?, ?)
         ");
 
-        $initmoneystmt->bind_param('is', $uid, $defaultmon, $defaultinv);
         $defaultinv = '';
         $defaultmon = 100;
+        $initmoneystmt->bind_param('iis', $uid, $defaultmon, $defaultinv); // for those new to the stream, i = integer, s = string (TEXT)
         $initmoneystmt->execute();
         $initmoneystmt->close();
     }
