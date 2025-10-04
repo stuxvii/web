@@ -63,6 +63,7 @@ require_once 'auth.php';
             if (!empty($token)) {
                 echo "<a href=\"character\">Character customization</a>";
                 echo "<a href=\"https://discord.gg/7JwYGHAvJV\">Official Discord server</a>";
+                echo "<a href=\"uploadui\">Upload asset</a>";
                 if ($opperms) {
                     echo "<a href=\"admin/\">Admin panel</a>";
                 }

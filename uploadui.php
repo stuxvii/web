@@ -36,12 +36,12 @@ require_once 'auth.php';
                     <br>
                     Price
                     <br>
-                    <input type="number" placeholder="0" name="itemid" id="itemid" required>
+                    <input type="number" placeholder="0" name="itemprice" id="itemprice" required>
                     <br>
                     <select id="type" name="type" style="margin-top:6px;">
-                        <option value="1" <?php if($sidebarid==1){echo"selected";}?>>Decal</option>
-                        <option value="2" <?php if($sidebarid==2){echo"selected";}?>>Audio</option>
-                        <option value="3" <?php if($sidebarid==3){echo"selected";}?>>Shirt</option>
+                        <option value="Dec" <?php if($sidebarid==1){echo"selected";}?>>Decal</option>
+                        <option value="Aud" <?php if($sidebarid==2){echo"selected";}?>>Audio</option>
+                        <option value="Shr" <?php if($sidebarid==3){echo"selected";}?>>Shirt</option>
                     </select>
                     <br>
                     <input type="submit" value="Upload">

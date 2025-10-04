@@ -1,4 +1,5 @@
 <?php
+require 'vendor/autoload.php';
 /*
 __/\\\\\\\\\\\\\\\_______/\\\\\_______/\\\\\\\\\\\\__________/\\\\\______        :
  _\///////\\\/////______/\\\///\\\____\/\\\////////\\\______/\\\///\\\____       :
@@ -20,14 +21,20 @@ header('Content-Type: application/json');
 $target_dir = "uploads/";
 
 $allowed_types = [
-    'image' => [
+    'Shr' => [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ],    
+    'Dec' => [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
         'image/webp' => 'webp',
     ],
-    'audio' => [
+    'Aud' => [
         'audio/mpeg' => 'mp3',
         'audio/ogg' => 'ogg',
+        'audio/wav' => 'wav'
     ]
 ];
 
@@ -40,9 +47,11 @@ function sendjsonback($status, $message, $http_code = 200) {
     echo json_encode(['status' => $status, 'message' => $message]);
     exit;
 }
+function upload() {
 
+}
 if ($_SERVER["REQUEST_METHOD"] != "POST" || !isset($_FILES["filetoupload"])) {
-    sendjsonback('error', 'Invalid request method or missing file.', 400); 
+    sendjsonback('error', 'Invalid upload.', 400);
 }
 
 if ($_FILES["filetoupload"]["error"] !== UPLOAD_ERR_OK) {
@@ -65,70 +74,102 @@ if (empty($tmp_name) || !is_uploaded_file($tmp_name)) {
 if ($uploadOk == 1) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime_type = finfo_file($finfo, $tmp_name);
+    $assettype = $_POST['type'];
+    $category = $allowed_types[$assettype];
     finfo_close($finfo);
     
-    if (!array_key_exists($mime_type, $allowed_types)) {
-        $msg .= "Sorry, only JPG and PNG files are allowed (Detected: " . $mime_type . "). ";
+    if (!array_key_exists($mime_type, $category)) {
+        $msg .= "Sorry, only JPEG, PNG, WebP, MP3, Waveform and OGG files are allowed (Detected: " . $mime_type . "). ";
         $uploadOk = 0;
     }
     
     $safe_ext = $allowed_types[$mime_type] ?? null;
-
-    $check = getimagesize($tmp_name);
-    if ($check === false) {
-        $msg .= "File is not valid. ";
-        $uploadOk = 0;
-    }
 }
 
 if ($uploadOk == 0) {
     sendjsonback('error', "Upload failed. " . $msg, 400);
 } 
 
-$new_file_name = uniqid() . '.' . $safe_ext;
-$target_file = $target_dir . $new_file_name;
+$new_file_name = uniqid();
+$assetname = $_POST['itemname'];
+$assetvalue = $_POST['itemprice'];
+$false = 0;
+if ($assettype == "Shr" || $assettype == "Dec") {
+    try {
+        $target_file = $target_dir . $new_file_name . ".png";
+        $imagick = new Imagick();
+        $imagick->readImage($tmp_name);
+        $imagick->stripImage();
 
-try {
-    $imagick = new Imagick();
-    $imagick->readImage($tmp_name);
-    $imagick->stripImage();
-
-    if ($safe_ext === 'jpg') {
-        $imagick->setImageFormat('jpeg');
-        $imagick->setCompression(Imagick::COMPRESSION_JPEG);
-        $imagick->setCompressionQuality(90);
-    } elseif ($safe_ext === 'png') {
         $imagick->setImageFormat('png');
-    }
 
-    $save_success = $imagick->writeImage($target_file);
-    $imagick->clear();
-    $imagick->destroy();
+        $save_success = $imagick->writeImage($target_file);
+        $imagick->clear();
+        $imagick->destroy();
 
-    if ($save_success) {
-        $msg = "Your asset has been uploaded and is pending approval.";
-        sendjsonback('success', $msg, 201);
-    } else {
-        $msg = "Asset upload failed.";
+        if ($save_success) {
+            $insert_sql = "INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)";
+            $stmt = $db->prepare($insert_sql);
+            $stmt->bind_param('ssiiiis', $assetname, $target_file, $uid, $assetvalue, $false, $false, $assettype);
+            $stmt->execute();
+            $stmt->close();
+            $msg = "Your asset has been uploaded, and is pending approval.";
+            sendjsonback('success', $msg, 201);
+        } else {
+            $msg = "Asset upload failed.";
+            sendjsonback('error', $msg, 500);
+        }
+        
+    } catch (ImagickException $e) {
+        $msg = "Asset processing failed: " . $e->getMessage();
         sendjsonback('error', $msg, 500);
     }
-    
-} catch (ImagickException $e) {
-    $msg = "Asset processing failed: " . $e->getMessage();
-    sendjsonback('error', $msg, 500);
-}
-$insert_sql = "INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)";
-$stmt = $db->prepare($insert_sql);
-$stmt->bind_param('ssiiiis', $assetname, $assetpath, $uid, $assetvalue, true, false, $assettype);
-$stmt->execute();
+} else if ($assettype == "Aud") {
+    $TARGET_FILE_SIZE_BITS = 2 * 1024 * 1024 * 32; 
 
-if ($stmt->affected_rows > 0) {
-    echo "Successfully wrote the key to the database.<br>";
-} else {
-    echo "Failed to write the key to the database.<br>";
+    try {
+        $target_file = $target_dir . $new_file_name . ".mp3";
+        $ffmpeg = FFMpeg\FFMpeg::create();
+        $ffprobe = FFMpeg\FFProbe::create();
+        $audio = $ffmpeg->open($tmp_name);
+        $duration_format = $ffprobe->format($tmp_name);
+        $duration_seconds = $duration_format->get('duration');
+        $format = new FFMpeg\Format\Audio\Mp3();
+
+        $target_abr = floor($TARGET_FILE_SIZE_BITS / $duration_seconds);
+        
+        $target_abr_kbps = round($target_abr / 1000); 
+        $min_abr_kbps = 64;
+        $max_abr_kbps = 320;
+        
+        if ($target_abr_kbps < $min_abr_kbps) {
+             $target_abr_kbps = $min_abr_kbps;
+        } elseif ($target_abr_kbps > $max_abr_kbps) {
+             $target_abr_kbps = $max_abr_kbps;
+        }
+
+        $format->setAudioKiloBitrate($target_abr_kbps);
+        $save_success = $audio->save($format, $target_file);
+
+        $insert_sql = "INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)";
+        $stmt = $db->prepare($insert_sql);
+        $stmt->bind_param('ssiiiis', $assetname, $target_file, $uid, $assetvalue, $false, $false, $assettype);
+        $stmt->execute();
+        $stmt->close();
+
+        $msg = "Your asset has been uploaded, and is pending approval.";
+        sendjsonback('success', $msg, 201);
+
+    } catch (\FFMpeg\Exception\ExceptionInterface $e) {
+        $msg = "Audio processing failed: " . $e->getMessage();
+        sendjsonback('error', $msg, 500);
+    } catch (\Exception $e) {
+        $msg = "Asset upload failed: " . $e->getMessage();
+        sendjsonback('error', $msg, 500);
+    }
+
 }
 
-$stmt->close();
 sendjsonback('error', 'Unknown server issue.', 500); 
 
 ?>
