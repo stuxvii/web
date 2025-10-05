@@ -90,7 +90,7 @@ if (empty($token)) {
     $econrow = $econ ? $econ->fetch_assoc() : false;
 
     $money = $econrow['money'];
-    $inv = '';
+    $inv = $econrow['inv'];
 
 
     if ($econrow['money'] === NULL) { // if no economy file was found, make a new one

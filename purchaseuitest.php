@@ -41,43 +41,43 @@ require_once 'auth.php';
         ?>
     </div>
     <script src="../titleanim.min.js"></script>
-            <script>
-            const form = document.getElementById('plrform');
-            const statusMessage = document.getElementById('status-message');
+    <script>
+    const form = document.getElementById('plrform');
+    const statusMessage = document.getElementById('status-message');
 
-            form.addEventListener('submit', function(event) {
-                event.preventDefault(); 
-            
-                statusMessage.textContent = 'Buying.';
-                const formData = new FormData(form);
-                const actionUrl = form.getAttribute('action');
-            fetch(actionUrl, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                return response.json().then(data => {
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Server error occurred.'); 
-                    }
-                    return data;
-                });
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    statusMessage.textContent = data.message || 'Item purchased successfully!';
-                    statusMessage.style.color = 'green';
-                } else {
-                    statusMessage.textContent = data.message || 'Purchase failed with an unknown error. You have not been charged.';
-                    statusMessage.style.color = 'orange';
-                    console.log(data);
-                }
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-                statusMessage.textContent = 'Connection or Server Failure: ' + error.message;
-            });
-            });
-        </script>
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); 
+    
+        statusMessage.textContent = 'Buying.';
+        const formData = new FormData(form);
+        const actionUrl = form.getAttribute('action');
+    fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.message || 'Server error occurred.'); 
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            statusMessage.textContent = data.message || 'Item purchased successfully!';
+            statusMessage.style.color = 'green';
+        } else {
+            statusMessage.textContent = data.message || 'Purchase failed with an unknown error. You have not been charged.';
+            statusMessage.style.color = 'orange';
+            console.log(data);
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        statusMessage.textContent = 'Connection or Server Failure: ' + error.message;
+    });
+    });
+</script>
     </body>
 </html>

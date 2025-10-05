@@ -70,6 +70,12 @@ if ($_FILES["filetoupload"]["error"] !== UPLOAD_ERR_OK) {
     sendjsonback('error', $error_msg, 500);
 }
 
+if ((int)$_POST['itemprice'] < 0) {
+    $msg .= "Sorry, but you may not upload items with negative prices. ";
+    sendjsonback('error', $msg, 400);
+    $uploadOk = 0;
+}
+
 if ($_FILES["filetoupload"]["size"] > $max_file_size) {
     $msg .= "Sorry, your file is too large (max: " . ($max_file_size / 1000) . "KB). ";
     sendjsonback('error', 'Invalid upload.', 400);
@@ -162,7 +168,7 @@ if ($assettype == "Shr" || $assettype == "Dec") {
         }
 
         $format->setAudioKiloBitrate($target_abr_kbps);
-        $format->setAdditionalParameters(array('-af', 'loudnorm=i=-16:lra=11:tp=-1.5'));
+        $format->setAdditionalParameters(array('-af', 'loudnorm=i=-16:lra=11:tp=-1.5')); // normalizing audio so your ears don't get exploded into a black hole
         $save_success = $audio->save($format, $target_file);
 
         $insert_sql = "INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)";

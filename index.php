@@ -7,14 +7,13 @@ echo "<div class=\"content\">";
 if ($authsuccessful) :
 ?>
     <div class="btmh">
-        <span>Hey there, <?php echo htmlspecialchars($name); ?>.</span>
+        <span>Hey there, <?php echo htmlspecialchars($name); ?>. <a href="logout">Click to log out</a></span>
         <span><?php 
-        if ($uid === 3) { 
-            echo "Dirhams: "; 
-        } else if ($uid === 5) { 
-            echo "Liras: ";
-        } else {
-            echo "₱esos: ";
+        switch ($uid) { 
+            case 2:  echo "₴ryvnias: "; break;
+            case 3:  echo "دمirhams: "; break;
+            case 5:  echo "₺iras: ";    break;
+            default: echo "₱esos: ";
         }
             echo htmlspecialchars($money); 
                 
@@ -32,7 +31,7 @@ if ($authsuccessful) :
     </div>
 
     <div class="midh">
-        <img class="bounce" src="processing.png" id="speen"><span id="maintext">Welcome.</span>
+        <img class="bounce" src="processing.png" id="speen"><span id="maintext"></span>
     </div>
 
     <div class="rite">
@@ -46,10 +45,9 @@ if ($authsuccessful) :
         <?php endif; ?>
         <a href="inventory">Inventory</a>
         <a href="config">Settings</a>
-        <a href="logout">Log out</a>
+        <a href="catalog">Catalog</a>
+    </div> 
 </div>
-    </div>
-
 <?php
 else :
 ?>
@@ -60,7 +58,6 @@ else :
     align-items: center;
 }
 </style>
-
 <div class="deadcenter">
     <a href="login">Login</a>
     <a href="register">Register</a>

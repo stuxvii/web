@@ -14,9 +14,9 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $sanitized_row = [];
     foreach ($row as $key => $value) {
-        echo $value;
         $sanitized_row[$key] = htmlspecialchars($value);
     }
     $iteminfo[] = $sanitized_row;
+    echo json_encode($iteminfo);
 }
 ?>
