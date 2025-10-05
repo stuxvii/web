@@ -1,5 +1,5 @@
 <?php
-require_once '../auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/auth.php';
 
 function exceptions_error_handler($severity, $message, $filename, $lineno) {
     throw new ErrorException($message, 0, $severity, $filename, $lineno);
@@ -146,77 +146,62 @@ function genkey() {
     }
 
 }
+
+
+ob_start();
+// START OF PAGE CONTENT AND LOGIC.
 ?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>ADMIN Dashboard</title>
-        <link rel="stylesheet" href="../styles.css">
-    </head>
-    <body>
-        <div class="content">
+<div class="diva">
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($allowed == false | $requestedprev == true) {
+            return;
+        }
+        if (isset($_POST['username'])) {
+            kill($_POST['username'],$allowed);
+        } else 
+        if (isset($_POST['keygen'])) {
+            genkey();
+        }
+    }
+    ?>
+    <div class="buttons" style="flex-direction:column;">
+        
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
             <?php
-            global $sidebarid;
-            global $sidebars;
-            require "../sidebars.php";
+            if ($allowed == true) {
+                if ($requestedprev == true) {return;}
+                echo "Current server load: " . round(percentloadavg()[0] * 100) . "%";
+                echo "<br><input type=\"submit\" name=\"keygen\" value=\"Generate  key\">";
+            } else {
+                echo "<em>Forbidden</em><br>";
+                echo "Go back to where you came from you scallywag.<br>";
+                echo "<a href='/'>Home page</a>";
+            }
             ?>
-            <div class="diva">
-                <?php
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    if ($allowed == false | $requestedprev == true) {
-                        return;
-                    }
-                    if (isset($_POST['username'])) {
-                        kill($_POST['username'],$allowed);
-                    } else 
-                    if (isset($_POST['keygen'])) {
-                        genkey();
-                    }
-                }
-                ?>
-                <div class="buttons" style="flex-direction:column;">
-                    
-                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-                        <?php
-                        if ($allowed == true) {
-                            if ($requestedprev == true) {return;}
-                            echo "Current server load: " . round(percentloadavg()[0] * 100) . "%";
-                            echo "<br><input type=\"submit\" name=\"keygen\" value=\"Generate  key\">";
-                        } else {
-                            echo "<em>Forbidden</em><br>";
-                            echo "Go back to where you came from you scallywag.<br>";
-                            echo "<a href='/'>Home page</a>";
-                        }
-                        ?>
-                    </form>
-                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-                        <?php
-                        if ($allowed == true) {
-                            if ($requestedprev == true) {return;}
-                            echo "<br>Kill someone<br>";
-                            echo "<input type=\"text\" name=\"username\" placeholder=\"Enter UserID\"><input type=\"submit\">";
-                        }
-                        ?>
-                    </form>
-                    <?php
-                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        if (isset($_POST['keygen'])) {
-                            echo "<button type=\"button\" onclick=\"window.location.replace('/admin');\">Go Back</button>";
-                            echo "<button type=\"button\" onclick=\"window.location.replace('/');\">Home!</button>";
-                            echo "<button type=\"button\" onclick=\"alert('$new_key')\">See key</button>";
-                        }
-                    }
-                    ?>
-                </div>
-            </div>
-            <div class="rite"></div>
+        </form>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
             <?php
-            global $sidebarid;
-            global $sidebars;
-            $rightside = true;
-            require "../sidebars.php";
+            if ($allowed == true) {
+                if ($requestedprev == true) {return;}
+                echo "<br>Kill someone<br>";
+                echo "<input type=\"text\" name=\"username\" placeholder=\"Enter UserID\"><input type=\"submit\">";
+            }
             ?>
-        </div>
-        <script src="../titleanim.min.js"></script>
-    </body>
-</html>
+        </form>
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST['keygen'])) {
+                echo "<button type=\"button\" onclick=\"window.location.replace('/admin');\">Go Back</button>";
+                echo "<button type=\"button\" onclick=\"window.location.replace('/');\">Home!</button>";
+                echo "<button type=\"button\" onclick=\"alert('$new_key')\">See key</button>";
+            }
+        }
+        ?>
+    </div>
+</div
+<?php
+$page_content = ob_get_clean();
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/template.php';
+?>

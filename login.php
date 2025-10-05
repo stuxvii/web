@@ -10,6 +10,14 @@ if (isset($_COOKIE['auth'])) {
         <title></title>
         <link rel="stylesheet" href="../styles.css">
     </head>
+    <style>
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        </style>
     <body>
 <?php
 require_once 'databaseconfig.php';
@@ -56,7 +64,8 @@ function login($un, $pass) {
 }
 
 ?>
-        <div class="diva">
+<div class="content">
+        <div class="deadcenter">
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                 Username: <input type="text" name="name">
                 <br>
@@ -77,7 +86,8 @@ function login($un, $pass) {
                 }
             ?>
         </div>
-        </div>
+    </div>
+    </div>
 
         <script>
             const tt=[];let ci=0;for(let e=0;e<9;e++){const t="▁▂▃▄▅▄▃▂".slice(e)+"▁▂▃▄▅▄▃▂".slice(0,e);tt.push(t)}document.addEventListener("DOMContentLoaded",(function(){setInterval((()=>{document.title="login"+tt[ci],ci=ci=(ci+1)%tt.length}),400)}));

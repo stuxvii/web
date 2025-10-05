@@ -1,16 +1,29 @@
 <?php
 require 'vendor/autoload.php';
-/*
-__/\\\\\\\\\\\\\\\_______/\\\\\_______/\\\\\\\\\\\\__________/\\\\\______        :
- _\///////\\\/////______/\\\///\\\____\/\\\////////\\\______/\\\///\\\____       :
-  _______\/\\\_________/\\\/__\///\\\__\/\\\______\//\\\___/\\\/__\///\\\__      :
-   _______\/\\\________/\\\______\//\\\_\/\\\_______\/\\\__/\\\______\//\\\_     :
-    _______\/\\\_______\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_    : finish the whole asset validation and upload and all that.
-     _______\/\\\_______\//\\\______/\\\__\/\\\_______\/\\\_\//\\\______/\\\__   :
-      _______\/\\\________\///\\\__/\\\____\/\\\_______/\\\___\///\\\__/\\\____  :
-       _______\/\\\__________\///\\\\\/_____\/\\\\\\\\\\\\/______\///\\\\\/_____ :
-        _______\///_____________\/////_______\////////////__________\/////_______:
-*/
+use FFMpeg\Format\Audio\DefaultAudio;
+use FFMpeg\Format\AudioInterface;
+class CustomMp3Format extends DefaultAudio implements AudioInterface
+{
+    protected $additionalParameters = [];
+
+    public function __construct()
+    {
+        $this->audioCodec = 'libmp3lame';
+    }
+    public function setAdditionalParameters(array $additionalParameters)
+    {
+        $this->additionalParameters = $additionalParameters;
+    }
+
+    public function getExtraParams()
+    {
+        return $this->additionalParameters;
+    }
+    public function getAvailableAudioCodecs()
+    {
+        return ['libmp3lame'];
+    }
+}
 require_once 'auth.php';
 if (!$authsuccessful) {
     header("Location: logout.php");
@@ -47,9 +60,7 @@ function sendjsonback($status, $message, $http_code = 200) {
     echo json_encode(['status' => $status, 'message' => $message]);
     exit;
 }
-function upload() {
 
-}
 if ($_SERVER["REQUEST_METHOD"] != "POST" || !isset($_FILES["filetoupload"])) {
     sendjsonback('error', 'Invalid upload.', 400);
 }
@@ -61,6 +72,7 @@ if ($_FILES["filetoupload"]["error"] !== UPLOAD_ERR_OK) {
 
 if ($_FILES["filetoupload"]["size"] > $max_file_size) {
     $msg .= "Sorry, your file is too large (max: " . ($max_file_size / 1000) . "KB). ";
+    sendjsonback('error', 'Invalid upload.', 400);
     $uploadOk = 0;
 }
 
@@ -92,7 +104,7 @@ if ($uploadOk == 0) {
 
 $new_file_name = uniqid();
 $assetname = $_POST['itemname'];
-$assetvalue = $_POST['itemprice'];
+$assetvalue = (int)$_POST['itemprice'];
 $false = 0;
 if ($assettype == "Shr" || $assettype == "Dec") {
     try {
@@ -129,26 +141,28 @@ if ($assettype == "Shr" || $assettype == "Dec") {
 
     try {
         $target_file = $target_dir . $new_file_name . ".mp3";
+
         $ffmpeg = FFMpeg\FFMpeg::create();
         $ffprobe = FFMpeg\FFProbe::create();
         $audio = $ffmpeg->open($tmp_name);
         $duration_format = $ffprobe->format($tmp_name);
         $duration_seconds = $duration_format->get('duration');
-        $format = new FFMpeg\Format\Audio\Mp3();
+        $format = new CustomMp3Format();
 
         $target_abr = floor($TARGET_FILE_SIZE_BITS / $duration_seconds);
-        
+
         $target_abr_kbps = round($target_abr / 1000); 
         $min_abr_kbps = 64;
         $max_abr_kbps = 320;
-        
+
         if ($target_abr_kbps < $min_abr_kbps) {
-             $target_abr_kbps = $min_abr_kbps;
+                $target_abr_kbps = $min_abr_kbps;
         } elseif ($target_abr_kbps > $max_abr_kbps) {
-             $target_abr_kbps = $max_abr_kbps;
+                $target_abr_kbps = $max_abr_kbps;
         }
 
         $format->setAudioKiloBitrate($target_abr_kbps);
+        $format->setAdditionalParameters(array('-af', 'loudnorm=i=-16:lra=11:tp=-1.5'));
         $save_success = $audio->save($format, $target_file);
 
         $insert_sql = "INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)";

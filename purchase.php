@@ -6,27 +6,28 @@ if ($uid === null || $db === null) {
     die("Authentication Error...");
 }
 
-$itemid = $_POST['itemid'];
+if (isset($_POST['itemid'])) {
+$itemid = (int)$_POST['itemid'];
+
 $stmtcheckitem = $db->prepare("
-SELECT id, name, asset, owner, value, public, approved, type
+SELECT name, asset, owner, value, public, approved, type
 FROM items 
 WHERE id = ?
 ");
-$stmtcheckitem->bind_param('s', $itemid);
+$stmtcheckitem->bind_param('i', $itemid);
 $stmtcheckitem->execute();
 $result = $stmtcheckitem->get_result();
 $row = $result->fetch_assoc();
 $stmtcheckitem->close();
 
 if (!$row['count'] > 0) {
-    $msg = "Item not found.";
+    $msg = $row['count'];
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    echo json_encode([
-        'status' => 'successa',
-        'message' => $msg
-        ]
-    );
+echo json_encode([
+    'status' => 'error',
+    'message' => 'item name: ' . $row['name']
+    ]
+);
 }
 ?>

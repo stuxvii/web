@@ -12,6 +12,8 @@
     --secondary-color: #fff;
     --bgimg: url("cargonet.bmp");
     --bpm: 160;
+    --good: #115511;
+    --evil: #551111;
 }
 
 html,
@@ -122,10 +124,6 @@ a:visited {
     align-self: flex-start;
 }
 
-.sbright {
-    align-self: flex-end;
-}
-
 .sbright img,
 .sbleft img {
     height: 100vh;
@@ -180,6 +178,7 @@ a:visited {
 .rite {
     display: flex;
     flex-direction: column;
+    padding: 0.5em;
     align-items: flex-end;
 }
 
@@ -190,6 +189,13 @@ a:visited {
 label {
     padding: 0;
     margin: 0;
+}
+
+.deadcenter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 input,
@@ -281,4 +287,37 @@ span img {
 
 ::-webkit-scrollbar {
     display: none;
+}
+
+.itemborder {
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid var(--secondary-color);
+    position: relative;
+    max-height: 50vh;
+    word-break: break-all;
+    line-break: anywhere;
+    overflow: scroll;
+}
+
+.item {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.iteminfo {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.itemasset {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
 }

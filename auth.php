@@ -38,7 +38,7 @@ B. changes their password
 $token = $_COOKIE['auth'] ?? '';
 $db = null;
 $uid = null;
-
+$authsuccessful = true;
 if (empty($token)) {
     $authsuccessful = false;
 } else {
@@ -114,12 +114,12 @@ if (empty($token)) {
     $fetchsettings->bind_param('i', $uid);
     $fetchsettings->execute();
     $settings = $fetchsettings->get_result();
-    $prefrow = $settings ? $settings->fetch_assoc() : false; // Tried adding this in to fix.
+    $prefrow = $settings ? $settings->fetch_assoc() : false;
     
-    // Fetch user settings so i can appropriately theme the website's look
+    // if values aren't found js set them as false man
     $theme = (bool)($prefrow['appearance'] ?? false);
     $movebg = (bool)($prefrow['movingbg'] ?? false);
-    $dispchar = (bool)($prefrow['dispchar'] ?? false);
+    $dispchar = (int)($prefrow['dispchar'] ?? 0);
     $sidebarid = (int)($prefrow['sidebarid'] ?? 0);
     $sidebars = (bool)($prefrow['sidebars'] ?? false);
 
@@ -135,13 +135,6 @@ if (empty($token)) {
     
     $clrrow = $colors ? $colors->fetch_assoc() : false;
     $fetchavatar->close();
-    
-    // if values aren't found js set them as false man
-    $theme = (bool)($prefrow['appearance'] ?? false);
-    $movebg = (bool)($prefrow['movingbg'] ?? false);
-    $dispchar = (int)($prefrow['dispchar'] ?? 0);
-    $sidebarid = (int)($prefrow['sidebarid'] ?? 0);
-    $sidebars = (bool)($prefrow['sidebars'] ?? false);
     
     $fetchavatar = $db->prepare("
     SELECT head, torso, leftarm, rightarm, leftleg, rightleg
@@ -162,6 +155,22 @@ if (empty($token)) {
     $rleg = (int)($clrrow['rightleg'] ?? 0);
     $rarm = (int)($clrrow['rightarm'] ?? 0);
 
+    function getuser($userid) {
+        global $db;
+        $getuserstmt = $db->prepare("
+        SELECT username, discordtag, isoperator
+        FROM users 
+        WHERE id = ?
+        ");
+
+        $getuserstmt->bind_param('i', $userid); 
+        $getuserstmt->execute();
+        $result = $getuserstmt->get_result();
+        $userinfo = $result->fetch_assoc();
+
+        $getuserstmt->close();
+        return $userinfo;
+    }
     if ($_SERVER['PHP_SELF'] == "/auth.php") {
         echo "<link rel='stylesheet' href='../styles.css'>";
         echo "<div class='diva'>";

@@ -76,61 +76,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+ob_start();
+if ($authsuccessful) :
 ?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" href="../animate.min.css">
-        <link rel="stylesheet" href="../normalize.css">
-        <link rel="stylesheet" href="../styles.css">
-        <?php
-            if ($theme) {
-                echo "<style>:root{--primary-color: #fff;--secondary-color: #000;--bgimg: url(\"cargonetlight.bmp\");}</style>";
-            }
-            if (!$movebg) {
-                echo "<style>body{animation: none;}</style>";
-            }
-        ?>
-    </head>
-    <body>
-        <div class="content">
-        <?php
-        require "sidebars.php";
-        ?>
-        <div class="diva" style="flex-direction:row;">
-            <div class="border" id="char">
-                <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);">
-                    <img src="images/epicface.png" width='56' height='56'>
-                </span>
-                <div class="horiz">
-                    <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                    <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
-                    <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-                </div>
-                <div class="horiz">
-                    <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-                    <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-                </div>
-            </div>
-            <div>
-                <a href="/">Home page</a>
-                <div class="border">
-                    <div class="colorpicker" id="colorpicker">
-                        <?php
-                        foreach ($brickcolor as $k => $v) {
-                            echo "<span class='color' colorbrick='$v' style='background-color:#$k;'></span>";
-                        }
-                        ?>
-                    </div>
-                </div>
-            </div>
-            <div class="border">
-                <div class="vert">
-                    <button onclick="render();" id="renderstat" class="left">Save</button>
-                    <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
-                </div>
+<div class="diva" style="flex-direction:row;">
+    <div class="border" id="char">
+        <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);">
+            <img src="images/epicface.png" width='56' height='56'>
+        </span>
+        <div class="horiz">
+            <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+            <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
+            <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+        </div>
+        <div class="horiz">
+            <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+            <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+        </div>
+    </div>
+    <div>
+        <a href="/">Home page</a>
+        <div class="border">
+            <div class="colorpicker" id="colorpicker">
+                <?php
+                foreach ($brickcolor as $k => $v) {
+                    echo "<span class='color' colorbrick='$v' style='background-color:#$k;'></span>";
+                }
+                ?>
             </div>
         </div>
+    </div>
+    <div class="border">
+        <div class="vert">
+            <button onclick="render();" id="renderstat" class="left">Save</button>
+            <?php echo "<img height='240px' id='render' src='renders/$uid" . ".png'>"; ?>
+        </div>
+    </div>
+</div>
+
         <script src="../character.js"></script>
         <script src="../titleanim.min.js"></script>
         <?php
@@ -155,23 +138,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             $newjson = json_encode($bpdata);
-            echo "<script>
-document.addEventListener(\"DOMContentLoaded\", e => {
-    let t = $newjson;
+        ?>
+<script>
+document.addEventListener("DOMContentLoaded", e => {
+    let t = <?php echo $newjson; ?>;
     t.forEach(e => {
         let n = document.getElementById(e.id);
         if (n) {
-            // Set the visual color style
-            n.style.backgroundColor = \"#\" + e.hex; 
-            // Set the 'color' attribute for the save logic
+            n.style.backgroundColor = "#" + e.hex; 
             n.setAttribute('color', e.color_id); 
         }
     });
 });
-</script>";
-        $rightside = true;
-        require "sidebars.php";
-        ?>
-        </div>
-    </body>
-</html>
+</script>
+<?php
+endif;
+$page_content = ob_get_clean();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/template.php';
+?>
