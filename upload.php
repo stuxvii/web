@@ -137,7 +137,7 @@ if ($assettype == "Shr" || $assettype == "Dec") {
         sendjsonback('error', $msg, 500);
     }
 } else if ($assettype == "Aud") {
-    $TARGET_FILE_SIZE_BITS = 2 * 1024 * 1024 * 32; 
+    $TARGET_FILE_SIZE_BITS = 2 * 1024 * 1024 * 16; 
 
     try {
         $target_file = $target_dir . $new_file_name . ".mp3";

@@ -2,13 +2,23 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/auth.php';
 
 ob_start();
-// START OF PAGE CONTENT AND LOGIC.
+
 echo "<div class=\"content\">";
 if ($authsuccessful) :
 ?>
     <div class="btmh">
         <span>Hey there, <?php echo htmlspecialchars($name); ?>.</span>
-        <span>₱esos: <?php echo htmlspecialchars($money); ?></span>
+        <span><?php 
+        if ($uid === 3) { 
+            echo "Dirhams: "; 
+        } else if ($uid === 5) { 
+            echo "Liras: ";
+        } else {
+            echo "₱esos: ";
+        }
+            echo htmlspecialchars($money); 
+                
+                ?></span>
 
         <?php
         if ($dispchar === 2) :

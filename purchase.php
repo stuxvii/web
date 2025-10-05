@@ -20,13 +20,17 @@ $result = $stmtcheckitem->get_result();
 $row = $result->fetch_assoc();
 $stmtcheckitem->close();
 
-if (!$row['count'] > 0) {
-    $msg = $row['count'];
+if ($row['asset'] == '') {
+    $msg = 'Item not found';
+    $status = 'error';
+} else {
+    $status = 'success';
+    $msg = 'item name: ' . $row['name'];
 }
 
 echo json_encode([
-    'status' => 'error',
-    'message' => 'item name: ' . $row['name']
+    'status' => $status,
+    'message' => $msg
     ]
 );
 }

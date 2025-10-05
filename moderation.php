@@ -18,18 +18,40 @@ $stmtcheckitem->execute();
 $result = $stmtcheckitem->get_result();
 
 function deleteasset($id) {
+    global $db;
+    $stmtgetitempath = $db->prepare("
+    SELECT asset
+    FROM items
+    WHERE id = ?
+    ");
+    $stmtgetitempath->bind_param('i',$id);
+    $stmtgetitempath->execute();
+    $result = $stmtgetitempath->get_result();
+    $row = $result->fetch_assoc();
+
+    unlink($row['asset']);
+
+    $stmtdelistitem = $db->prepare("
+    UPDATE items
+    SET asset = NULL, approved = NULL
+    WHERE id = ?
+    ");
+    $stmtdelistitem->bind_param('i',$id);
+    $stmtdelistitem->execute();
     return $id;
 }
+
 function makeassetavailable($id) {
     global $db;
-    $stmtcheckitem = $db->prepare("
+
+    $stmtapproveitem = $db->prepare("
     UPDATE items
     SET approved = 1
     WHERE id = ?
     ");
-    $stmtcheckitem->bind_param('i',$id);
-    $stmtcheckitem->execute();
-    return $stmtcheckitem;
+    $stmtapproveitem->bind_param('i',$id);
+    $stmtapproveitem->execute();
+    return $stmtapproveitem;
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json_data = file_get_contents('php://input');
@@ -97,7 +119,6 @@ if ($result->num_rows > 0) {
 while ($row = $result->fetch_assoc()) {
     $id     = htmlspecialchars($row['id']);
     $name   = htmlspecialchars($row['name']);
-    $asset  = htmlspecialchars($row['asset']);
     $owner  = htmlspecialchars($row['owner']);
     $value  = htmlspecialchars($row['value']);
     $public = htmlspecialchars($row['public']);
@@ -115,22 +136,22 @@ while ($row = $result->fetch_assoc()) {
                 <?php
             if ($type == "Shr" || $type == "Dec") {
                 ?>
-                <img src="<?php echo $asset;?>" height="128" >
+                <img src="getfile?id=<?php echo $id;?>" height="128" >
                 <?php
             } else if ($type == "Aud") {
                 ?>
                 <audio controls> 
-                    <source src="<?php echo $asset;?>" type="audio/mpeg">
+                    <source src="getfile?id=<?php echo $id;?>" type="audio/mpeg">
                 </audio>
                 <?php
             }
             ?>
             </div>
-            <span id="stat<?php echo $id;?>">Do you approve this <?php echo $type;?>?</span>
+            <span id="stat<?php echo $id;?>">&nbsp;</span>
             <div class="buttons">
-                <button style="background-color:var(--good);" onclick="approve(<?php echo $id;?>);">Approve</button>
+                <button style="background-color:var(--good);" onclick="handleAction(<?php echo $id;?>,'approve');">Approve</button>
                 &nbsp;
-                <button style="background-color:var(--evil);" onclick="reject(<?php echo $id;?>);">Reject</button>
+                <button style="background-color:var(--evil);" onclick="handleAction(<?php echo $id;?>,'reject');">Reject</button>
             </div>
         </div>
 <?php }} else {
@@ -143,31 +164,31 @@ while ($row = $result->fetch_assoc()) {
 <br>
 Unless there is clear evidence to the contrary, assume that fellow users that upload assets to the project are trying to improve it, not harm it.
 If criticism is necessary, discuss users' actions, but avoid accusing them of harmful motives.
-<br>
-Slang for those new to the stream:
-<br>
-Dec: Decal
-<br>
-Shr: T-Shirt
-<br>
-Aud: Audio/Sound
 </div>
 </div>
 <script>
-function approve(id) {
-                const item = document.getElementById(id);
+function handleAction(id, action) {
+    const item = document.getElementById(id);
     const statusMessage = document.getElementById('stat' + id);
-    statusMessage.textContent = '';
+
+    if (!item || !statusMessage) {
+        console.error(`DOM elements not found for ID: ${id}`);
+        return;
+    }
+
+    statusMessage.style.color = 'black';
     statusMessage.textContent = 'Processing...';
-    const postdata = [{'id': id, 'action': 'approve'}];
+
+    const postdata = [{'id': id, 'action': action}];
     const actionUrl = "<?php echo $_SERVER['PHP_SELF'] ?>";
+
     fetch(actionUrl, {
         method: 'POST',
         body: JSON.stringify(postdata)
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok. Status: ' + response.status);
+            throw new Error(`Network response was not ok. Status: ${response.status}`);
         }
         return response.json();
     })
@@ -189,41 +210,7 @@ function approve(id) {
         statusMessage.textContent = 'Failed to connect to server: ' + error.message;
     })
 }
-function reject(id) {
-                const item = document.getElementById(id);
-    const statusMessage = document.getElementById('stat' + id);
-    statusMessage.textContent = '';
-    statusMessage.textContent = 'Saving...';
-    const postdata = [{'id': id, 'action': 'reject'}];
-    const actionUrl = "<?php echo $_SERVER['PHP_SELF'] ?>";
-    fetch(actionUrl, {
-        method: 'POST',
-        body: JSON.stringify(postdata)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok. Status: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            statusMessage.style.color = 'green';
-            statusMessage.textContent = data.message;
-            setTimeout(() => {
-                item.remove()
-            }, 1500);
-        } else {
-            statusMessage.style.color = 'red';
-            statusMessage.textContent = data.message || 'An unknown error occurred.';
-        }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        statusMessage.style.color = 'red';
-        statusMessage.textContent = 'Failed to connect to server: ' + error.message;
-    })
-}
+
 </script>
 <?php
 $result->free();

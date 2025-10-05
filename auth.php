@@ -85,14 +85,15 @@ if (empty($token)) {
 
     $checkifecon->bind_param('i', $uid);
     $checkifecon->execute();
-    $checkifecon->store_result();
+    
+    $econ = $checkifecon->get_result();
+    $econrow = $econ ? $econ->fetch_assoc() : false;
 
-    $money = 100;
+    $money = $econrow['money'];
     $inv = '';
 
-    $checkifecon->bind_result($money, $inv);
 
-    if ($checkifecon->num_rows === 0) { // if no economy file was found, make a new one
+    if ($econrow['money'] === NULL) { // if no economy file was found, make a new one
         $initmoneystmt = $db->prepare("
             INSERT INTO economy (id, money, inv) VALUES (?, ?, ?)
         ");
