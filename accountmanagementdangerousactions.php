@@ -95,11 +95,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ob_start();
 ?>
-<div class="content">
+    <style>.content {flex-direction: row;width:100%;justify-content: space-between;}</style>
     <div class="left midh">
         <form id="plrform" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>">
-            <a href="/">Home</a>
-            <br>
             <span>New username</span>
             <hr>
             <input type="username" id="username" name="username" maxlength="20">
@@ -147,7 +145,6 @@ ob_start();
         <br>
         <button onclick="location.href='deleteaccount'">Delete Account</button>
     </div>
-</div>
 <?php
 $page_content = ob_get_clean();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/template.php';

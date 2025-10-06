@@ -109,13 +109,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ob_start();
 ?>
 
-        <div class="diva">
-
-            <a href="/">Home page</a>
-            <em>For your convenience, these <br>settings persist across devices.</em>
-            
+        <div class="midh">
             <span id="status-message" style="margin-bottom: 15px; max-width:14em;"></span>
-            
             <form id="plrform" method="post" action="<?php echo htmlspecialchars("config.php");?>">
                 <hr>
                 <span>Appearance</span>
@@ -128,21 +123,13 @@ ob_start();
                 <hr>
                 <span>Site preferences</span>
                 <hr>
-
-                <label for="displaychar">Character style</label>
-                <br>
-                <select id="displaychar" name="displaychar" style="margin-top:6px;">
-                    <option value="0" <?php if($dispchar==0){echo"selected";}?>>Hide</option>
-                    <option value="1" <?php if($dispchar==1){echo"selected";}?>>2D</option>
-                    <option value="2" <?php if($dispchar==2){echo"selected";}?>>3D</option>
-                </select>
-                <br>
                 <input type="checkbox" id="movingbg" name="movingbg" <?php if($movebg){echo"checked";}?>>
                 <label for="movingbg">Moving background</label>
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
-                <label for="sidebars">Decorative sidebars<label>
+                <label for="sidebars">needy streamer <br> overload time<label>
                 <br>
+                Sidebar:
                 <select id="sidebarid" name="sidebarid" style="margin-top:6px;">
                     <option value="1" <?php if($sidebarid==1){echo"selected";}?>>Day</option>
                     <option value="2" <?php if($sidebarid==2){echo"selected";}?>>Afternoon</option>

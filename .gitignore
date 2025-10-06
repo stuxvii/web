@@ -24,4 +24,5 @@ databaseconfig.php
 *.opus
 *.aiff
 *.webm
+*.ttf
 /vendor/

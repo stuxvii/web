@@ -80,7 +80,7 @@ if (empty($token)) {
     $authsuccessful = true; // user is valid ^_^
 
     $checkifecon = $db->prepare("
-        SELECT money, inv FROM economy WHERE id = ?
+        SELECT money, inv, lastbuxclaim FROM economy WHERE id = ?
     "); // get economy values 
 
     $checkifecon->bind_param('i', $uid);
@@ -92,6 +92,11 @@ if (empty($token)) {
     $money = $econrow['money'];
     $inv = $econrow['inv'];
 
+    if ( time() - $econrow['lastbuxclaim'] > 43200) { // 12 hours
+        $stipend = true;
+    } else {
+        $stipend = false;
+    }
 
     if ($econrow['money'] === NULL) { // if no economy file was found, make a new one
         $initmoneystmt = $db->prepare("

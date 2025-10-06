@@ -4,15 +4,6 @@ if (isset($_COOKIE['auth'])) {
     header("Location: index.php");
     exit;
 }
-?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>[ [ [ ACDBX.TOP ] ] ] if u enabled javascript this would be a cool asf animation</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-<?php
 
 require_once __DIR__ . '/databaseconfig.php';
 $db = get_db_connection();
@@ -20,7 +11,7 @@ $db = get_db_connection();
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 $discordtvalidateregex = '/^(?!.*?\.{2,})[a-z0-9_\.]{2,32}$/';
 
-function guidv4($data = null) { // ctrl+c ctrl+v (idfk what this is)
+function guidv4($data = null) {
     $data = $data ?? random_bytes(64);
     assert(strlen($data) == 64);
     $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
@@ -29,7 +20,7 @@ function guidv4($data = null) { // ctrl+c ctrl+v (idfk what this is)
 }
 
 function error($reason) {
-    return "<img src=\"error.png\"><span class=\"info\">$reason</span>";
+    return "<img src=\"error.png\" height='32'><span class=\"info\">$reason</span>";
 }
 
 function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
@@ -147,7 +138,7 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
                     <input type="password" name="key">
                     <br>
                     <br>
-                    <input type="submit" name="submit" value="Register....">
+                    <input type="submit" name="submit" value="Register">
                 </form>
                 <br>
             </div>
@@ -161,8 +152,8 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
                 ?>
             </div>
         </div>
-        <script>
-            const tt=[];let ci=0;for(let e=0;e<9;e++){const t="▁▂▃▄▅▄▃▂".slice(e)+"▁▂▃▄▅▄▃▂".slice(0,e);tt.push(t)}document.addEventListener("DOMContentLoaded",(function(){setInterval((()=>{document.title="register"+tt[ci],ci=ci=(ci+1)%tt.length}),400)}));
-        </script>
-    </body>
-</html>
+<?php 
+$page_content = ob_get_clean();
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/template.php';
+?>

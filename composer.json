@@ -3,7 +3,8 @@
     "description": "WIP Social app",
     "type": "project",
     "require": {
-        "php-ffmpeg/php-ffmpeg": "^1.3"
+        "php-ffmpeg/php-ffmpeg": "^1.3",
+        "jaybizzle/crawler-detect": "^1.3"
     },
     "license": "mit",
     "autoload": {

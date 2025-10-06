@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ob_start();
 ?>
-<div class="diva">
+<div class="deadcenter">
     <div class="itemborder">
     <?php
 if ($result->num_rows > 0) {
@@ -158,13 +158,6 @@ while ($row = $result->fetch_assoc()) {
     echo "No items up for moderation.";
 } ?>
     </div>
-</div>
-<div class="midh rite">
-<div class="border" style="max-width:40vw;">Guidelines and recommendations:
-<br>
-Unless there is clear evidence to the contrary, assume that fellow users that upload assets to the project are trying to improve it, not harm it.
-If criticism is necessary, discuss users' actions, but avoid accusing them of harmful motives.
-</div>
 </div>
 <script>
 function handleAction(id, action) {

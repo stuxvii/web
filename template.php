@@ -1,7 +1,16 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/auth.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/vendor/autoload.php";
 if (!isset($page_content)) {
     $page_content = '';
+}
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
+
+$CrawlerDetect = new CrawlerDetect;
+
+if($CrawlerDetect->isCrawler()) {
+    http_response_code(400);
+    die();
 }
 
 /*
@@ -29,23 +38,40 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
 <!DOCTYPE html> 
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=0.8">
         <link rel="stylesheet" href="../normalize.css">
         <link rel="stylesheet" href="../styles.css">
+        <meta name="robots" content="noindex">
         <style>
         <?php
-            if ($theme) {
-                echo ":root{
+            if ($theme): ?>
+                :root{
                 --primary-color: #fff;
                 --secondary-color: #000;
-                --bgimg: url(\"cargonetlight.bmp\");
+                --bgimg: url("cargonetlight.bmp");
                 --good: #00bb00;
                 --evil: #dd2222;
-                }";
-            }
-            if (!$movebg) {
-                echo "body{animation-name: none;}";
-            }
-        ?></style>
+                }
+
+            <?php endif; if (!$movebg): ?>
+                body{animation-name: none;}
+
+            <?php endif; if (!$sidebars) :?>
+                .sidebars{justify-content: center;}
+
+            <?php else: ?>
+                body{font-family: 'dink';}
+                html,
+                body,
+                input,
+                select,
+                option,
+                button {
+                    cursor: url('cursors/kangel.cur'), auto;
+                }
+                
+            <?php endif;?>
+            </style>
     </head>
     <body>
     <div class="sidebars">
@@ -53,10 +79,65 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
         global $sidebarid;
         global $sidebars;
         require "sidebars.php";
+        ?>	
+    <div class="main">
+    <div>
+    <div class="navbar">
+        <div>
+            <a href="/"><img height='20px' src='images/anim/logo.gif'></a>
+            <?php if ($authsuccessful) :?>
+		<a href="uploadui">Upload</a>
+		<a href="catalog">Catalog</a>
+		<a href="character">Character</a>
+		<a href="inventory">Inventory</a>
+        </div>
+        <div>
+		<span><?php echo htmlspecialchars($name);?></span>
+		<?php
+        $cursymbol = "₱ ";
+		switch ($uid) { 
+			case 2:  $cursymbol =  "₴ "; break;
+			case 3:  $cursymbol =  "دم "; break;
+			case 5:  $cursymbol =  "₺ ";    break;
+		}
+        if ($sidebars) {$cursymbol = "¥ ";}
+		echo $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>'; 
+        ?>
+    <?php else: ?>
+        </div>
+        <div>
+            <a href="login">Login</a>
+            <a href="register">Register</a>
+        </div>
+        <?php endif; ?>
+    </div>
+        
+	</div>
+	<div class="navbar">
+        <?php if ($authsuccessful) : ?>
+            <div>
+                <a href="https://discord.gg/7JwYGHAvJV" target="_blank">Discord</a>
+                <a href="https://buymeacoffee.com/acidbox" target="_blank">Buy me a coffee</a>
+            </div>
+            <div>
+                <?php if ($opperms) : ?>
+                    <a href="moderation">Moderate assets</a>
+                    <a href="admin">Admin panel</a>
+                    <?php endif; ?>
+                    <a href="config">Settings</a>
+                    <a href="logout">Log out</a>
+        </div>
+        <?php endif; ?>
+	</div>
+	</div>
+    <?php
+        echo "<div class='content'>";
         echo $page_content;
+        echo "</div>";
         global $sidebarid;
         global $sidebars;
         $rightside = true;
+        echo "</div>";
         require "sidebars.php";
         ?>
     </div>

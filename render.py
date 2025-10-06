@@ -8,6 +8,10 @@ def hex2rgb(hex_color):
         raise ValueError(f"Hex color must start with '#'. Received: '{hex_color}'")
         
     hex_color = hex_color.lstrip('#')
+    
+    if len(hex_color) != 6:
+        raise ValueError(f"Hex color must be 6 characters long after '#'. Received: '{hex_color}'")
+        
     r_srgb = int(hex_color[0:2], 16) / 255.0
     g_srgb = int(hex_color[2:4], 16) / 255.0
     b_srgb = int(hex_color[4:6], 16) / 255.0
@@ -24,17 +28,90 @@ def hex2rgb(hex_color):
 
     return (r_linear, g_linear, b_linear, 1.0)
 
+def set_image_texture(material, image_url):
+    principled_node = None
+    for node in material.node_tree.nodes:
+        if node.type == 'BSDF_PRINCIPLED':
+            principled_node = node
+            break
+            
+    if not principled_node:
+        return False
+
+    image_fullpath = os.path.abspath(image_url)
+    image_fullpath = bpy.path.abspath(image_fullpath)
+
+    if not os.path.exists(image_fullpath):
+        return False
+        
+    try:
+        img = bpy.data.images.load(image_fullpath, check_existing=True)
+        img.alpha_mode = 'CHANNEL_PACKED'
+    except RuntimeError as e:
+        return False
+        
+    base_color_input = principled_node.inputs.get('Base Color')
+    if base_color_input and base_color_input.links:
+        for link in list(base_color_input.links):
+            material.node_tree.links.remove(link)
+            
+    alpha_input = principled_node.inputs.get('Alpha')
+    if alpha_input and alpha_input.links:
+        for link in list(alpha_input.links):
+            material.node_tree.links.remove(link)
+
+    image_texture_node = material.node_tree.nodes.new('ShaderNodeTexImage')
+    image_texture_node.image = img
+    
+    image_texture_node.location = principled_node.location[0] - 300, principled_node.location[1]
+
+    material.node_tree.links.new(
+        image_texture_node.outputs['Color'],
+        base_color_input
+    )
+    
+    material.node_tree.links.new(
+        image_texture_node.outputs['Alpha'],
+        alpha_input
+    )
+    
+    return True
+
+def create_and_assign_shirt_material(image_url, base_material_name="shirt"):
+    try:
+        target_obj = bpy.data.objects["tshirt"]
+    except KeyError:
+        return
+
+    original_mat = bpy.data.materials.get(base_material_name)
+    
+    if original_mat:
+        new_mat = original_mat.copy()
+        new_mat.name = f"{base_material_name}_CUSTOM_{os.path.basename(image_url)}"
+    else:
+        new_mat = bpy.data.materials.new(name=f"{base_material_name}_CUSTOM_DEFAULT")
+        new_mat.use_nodes = True
+        if not any(node.type == 'BSDF_PRINCIPLED' for node in new_mat.node_tree.nodes):
+             principled = new_mat.node_tree.nodes.new('ShaderNodeBsdfPrincipled')
+             mat_out = new_mat.node_tree.nodes.get("Material Output")
+             if mat_out and principled:
+                  new_mat.node_tree.links.new(principled.outputs[0], mat_out.inputs[0])
+
+    new_mat.blend_method = 'CLIP'
+    new_mat.show_transparent_back = True
+    set_image_texture(new_mat, image_url)
+    if target_obj.data.materials:
+        target_obj.data.materials[0] = new_mat
+    else:
+        target_obj.data.materials.append(new_mat)
+
 try:
     argv = sys.argv
     if "--" in argv:
         script_args = argv[argv.index("--") + 1:]
     else:
-        print("Blender script called without arguments. Exiting.")
+        print("Script called without arguments. Exiting.")
         os._exit(0) 
-
-    if len(script_args) != 2:
-        print("Error: Expected 2 arguments: 1. JSON Data (string), 2. Full Output Path (string).")
-        os._exit(1) 
 
     json_data_str_raw = script_args[0]
     full_output_filepath = script_args[1].strip("'\"")
@@ -59,14 +136,20 @@ try:
         "larm": "leftarm",
         "lleg": "leftleg",
         "rarm": "rightarm",
-        "rleg": "rightleg"
+        "rleg": "rightleg",
     }
+    
+    shirt_data = None 
 
     for item in part_data_list:
         part_id = item.get('id')
         hexcode = item.get('hex') 
 
-        if not part_id or not hexcode:
+        if part_id == "shirt":
+            shirt_data = item
+            continue 
+
+        if not part_id:
             continue
 
         material_name = material_map.get(part_id)
@@ -81,29 +164,29 @@ try:
                 if node.type == 'BSDF_PRINCIPLED':
                     principled_node = node
                     break
-            
-            if principled_node:
-                base_color_input = principled_node.inputs.get('Base Color')
                 
-                if base_color_input:
-                    rgba_color = hex2rgb(hexcode)
-                    base_color_input.default_value = rgba_color
-                    print(f"Set Base Color in material '{material_name}' to {hexcode}.")
-                else:
-                    print(f"Warning: 'Base Color' input not found on Principled BSDF for material '{material_name}'.")
-            else:
-                found_generic_bsdf = False
-                for node in mat.node_tree.nodes:
-                    if node.bl_idname.startswith('ShaderNodeBsdf'):
-                         if node.inputs.get('Color'):
-                            node.inputs['Color'].default_value = hex2rgb(hexcode)
-                            print(f"Set Color on generic BSDF node in material '{material_name}' to {hexcode}.")
-                            found_generic_bsdf = True
-                            break
-                if not found_generic_bsdf:
-                     print(f"Warning: No Principled BSDF or generic BSDF 'Color' input found for material '{material_name}'. Skipping.")
+            if hexcode:
+                if principled_node:
+                    base_color_input = principled_node.inputs.get('Base Color')
+                    
+                    if base_color_input:
+                        if base_color_input.links:
+                            for link in list(base_color_input.links):
+                                mat.node_tree.links.remove(link)
+                                
+                        rgba_color = hex2rgb(hexcode)
+                        base_color_input.default_value = rgba_color
+                        print(f"Set Base Color in material '{material_name}' to {hexcode}.")
+                    else:
+                        print(f"Warning: 'Base Color' input not found on Principled BSDF for material '{material_name}'.")
+                
         else:
             print(f"Warning: Material '{material_name}' not found or not using nodes. Skipping.")
+    if shirt_data and shirt_data.get('image'):
+        create_and_assign_shirt_material(shirt_data['image'])
+    elif shirt_data:
+        print("Warning: 'shirt' part specified, but no 'image' URL provided. Skipping shirt texture.")
+
 
 except Exception as e:
     print(f"Error modifying materials: {e}")
@@ -114,14 +197,10 @@ try:
     
     if not os.path.exists(output_directory_path):
         os.makedirs(output_directory_path, exist_ok=True)
-        print(f"Created output directory: {output_directory_path}")
     
     scene.render.filepath = full_output_filepath
-    
     print(f"Rendering image to path: {scene.render.filepath}")
-    
     bpy.ops.render.render(write_still=True)
-    print("Render complete.")
 
 except Exception as e:
     print(f"Error during rendering: {e}")

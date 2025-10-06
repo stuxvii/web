@@ -6,9 +6,7 @@ if (!$authsuccessful) {
 }
 ob_start();
 ?>
-<div class="deadcenter" style="
-    justify-content: center;">
-    <a href="/">Home</a>
+<div class="deadcenter" style="justify-content: center;">
     <div class="border" style="padding:15px;">
         <span id="status-message"></span>
         <form id="plrform" method="post" action="<?php echo htmlspecialchars("upload.php");?>" enctype="multipart/form-data">

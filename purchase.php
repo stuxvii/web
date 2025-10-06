@@ -72,7 +72,8 @@ if ($row['asset'] == '') {
 
 echo json_encode([
     'status' => $status,
-    'message' => $msg
+    'message' => $msg,
+    'newmoney' => $money - $price
     ]
 );
 }

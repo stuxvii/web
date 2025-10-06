@@ -38,75 +38,13 @@ function keygenfunc($length = 12) {
     return $random_key;
 }
 
-function kill($victim, $allowed) {
-    global $requestedprev;
-    $requestedprev = true;
-    if ($allowed === false) {
-        return;
-    }
-    
-    if (!is_numeric($victim) || $victim <= 0) {
-        echo "Please enter a valid UserID.<a href='/admin/'>Go back</a>";
-        return;
-    }
-
-    $db = null;
-    try {
-        echo "Attempting to connect to the database...<br>";
-        $db = get_db_connection(); 
-        echo "Successfully connected to the database...<br>";
-
-        $select_sql = "SELECT id FROM users WHERE id = ?";
-        $stmt_check = $db->prepare($select_sql);
-        $stmt_check->bindValue('i', $victim);
-        $stmt_check->execute();
-        $result = $stmt_check->get_result();
-        $row = $result->fetch_assoc();
-        $stmt_check->close();
-        
-        if ($row) {
-            echo "Found user.<br>";
-
-            $update_sql = "
-                UPDATE users 
-                SET 
-                    username = 'Content Deleted',
-                    pass = NULL,
-                    discordtag = NULL,
-                    registerts = NULL,
-                    invkey = NULL,
-                    authuuid = NULL
-                WHERE id = ?
-            ";
-            $stmt_update = $db->prepare($update_sql);
-            $stmt_update->bindValue('i', $victim);
-            $stmt_update->execute();
-            $stmt_update->close();
-            echo "User erased (anonymized).<br>";
-            
-        } else {
-            echo "UserID not found.<a href='/admin/'>Go back</a>";
-        }
-
-    } catch (Exception $e) {
-        error_log("Database error in kill(): " . $e->getMessage()); 
-        echo "Internal error when querying users.<a href='/admin/'>Go back</a>";
-    } finally {
-        if ($db) {
-            $db->close();
-        }
-    } 
-}
-
 function genkey() {
     global $allowed;
     if ($allowed == false) {
         return;
     }
     try {
-        echo "Attempting to connect to the database...<br>";
         $db = get_db_connection();
-        echo "Successfully connected to the database...<br>";
         $db->query("
         CREATE TABLE IF NOT EXISTS users (
             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -119,23 +57,19 @@ function genkey() {
             isoperator TINYINT(1) DEFAULT 0
         )
         ");
-        echo "Database is ready.<br>";
         global $new_key;
         $new_key = keygenfunc(); 
-        echo "Generated new key.<br>";
         $insert_sql = "INSERT INTO users (invkey) VALUES (?)";
         $stmt = $db->prepare($insert_sql);
         $stmt->bind_param('s', $new_key);
         $stmt->execute();
 
-        if ($stmt->affected_rows > 0) {
-            echo "Successfully wrote the key to the database.<br>";
-        } else {
+        if (!$stmt->affected_rows > 0) {
             echo "Failed to write the key to the database.<br>";
         }
 
         $stmt->close();
-        echo "Database connection closed.<br>";
+        echo "Success!<br>";
 
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
@@ -147,57 +81,36 @@ function genkey() {
 
 }
 
-
 ob_start();
-// START OF PAGE CONTENT AND LOGIC.
-?>
-<div class="diva">
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if ($allowed == false | $requestedprev == true) {
-            return;
-        }
-        if (isset($_POST['username'])) {
-            kill($_POST['username'],$allowed);
-        } else 
-        if (isset($_POST['keygen'])) {
-            genkey();
-        }
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($allowed == false | $requestedprev == true) {
+        return;
     }
+    if (isset($_POST['keygen'])) {
+        genkey();
+    }
+}
     ?>
+    <style>.content{align-items:center;}</style>
     <div class="buttons" style="flex-direction:column;">
-        
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" style="display:flex;flex-direction:column;">
             <?php
-            if ($allowed == true) {
-                if ($requestedprev == true) {return;}
+        if ($allowed == true) {
+            if (isset($_POST['keygen'])) {
+                echo "<button type=\"button\" onclick=\"alert('$new_key')\">See key</button>";
+                    echo "<button type=\"button\" onclick=\"window.location.replace('/admin');\">Go Back</button>";
+            } else {
                 echo "Current server load: " . round(percentloadavg()[0] * 100) . "%";
                 echo "<br><input type=\"submit\" name=\"keygen\" value=\"Generate  key\">";
-            } else {
-                echo "<em>Forbidden</em><br>";
-                echo "Go back to where you came from you scallywag.<br>";
-                echo "<a href='/'>Home page</a>";
             }
-            ?>
-        </form>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-            <?php
-            if ($allowed == true) {
-                if ($requestedprev == true) {return;}
-                echo "<br>Kill someone<br>";
-                echo "<input type=\"text\" name=\"username\" placeholder=\"Enter UserID\"><input type=\"submit\">";
-            }
-            ?>
-        </form>
-        <?php
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            if (isset($_POST['keygen'])) {
-                echo "<button type=\"button\" onclick=\"window.location.replace('/admin');\">Go Back</button>";
-                echo "<button type=\"button\" onclick=\"window.location.replace('/');\">Home!</button>";
-                echo "<button type=\"button\" onclick=\"alert('$new_key')\">See key</button>";
-            }
+        } else {
+            echo "<em>Forbidden</em><br>";
+            echo "Go back to where you came from you scallywag.<br>";
+            echo "<a href='/'>Home page</a>";
         }
-        ?>
+            ?>
+        </form>
     </div>
 </div
 <?php

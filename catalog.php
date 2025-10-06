@@ -11,8 +11,6 @@ $result = $stmtcheckitem->get_result();
 ob_start();
 ?>
 <div class="deadcenter">
-    <a href="/">Home</a>
-    <span id="purchase-status-message">Welcome to the catalog!</span>
 <div class="itemborder">
     <?php
 if ($result->num_rows > 0) {
@@ -20,7 +18,7 @@ if ($result->num_rows > 0) {
     <?php
     while ($row = $result->fetch_assoc()) {
         $id     = htmlspecialchars($row['id']);
-        $name   = htmlspecialchars($row['name']);
+        $itemname   = htmlspecialchars($row['name']);
         $owner  = htmlspecialchars($row['owner']);
         $value  = htmlspecialchars($row['value']);
         $public = htmlspecialchars($row['public']);
@@ -35,7 +33,7 @@ if ($result->num_rows > 0) {
         }
     </style>
     <div class='catalogitem' data-item-id="<?php echo $id;?>"> <div class='catalogitemasset'>
-            <?php echo $name; ?>
+            <?php echo $itemname; ?>
             <?php
             if ($type == "Shr" || $type == "Dec") {
                 ?>
@@ -73,6 +71,7 @@ if ($result->num_rows > 0) {
 document.addEventListener('DOMContentLoaded', () => {
     const purchaseButtons = document.querySelectorAll('.purchase-button');
     const statusMessage = document.getElementById('purchase-status-message');
+    const amountPesos = document.getElementById('amountofmoney');
 
     purchaseButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -106,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.status === 'success') {
                     statusMessage.textContent = data.message || `Item ${itemId} purchased successfully!`;
+                    amountPesos.textContent = "You have " + data.newmoney + " ₱esos";
                     statusMessage.style.color = 'green';
                 } else {
                     statusMessage.textContent = data.message || 'Purchase failed with an unknown error. You have not been charged.';
