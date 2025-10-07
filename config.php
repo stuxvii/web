@@ -128,13 +128,14 @@ ob_start();
                 <br>
                 <input type="checkbox" id="sidebars" name="sidebars" <?php if($sidebars){echo"checked";}?>>
                 <label for="sidebars">needy streamer <br> overload time<label>
-                <br>
+                <?php if ($sidebars) : ?><br>
                 Sidebar:
                 <select id="sidebarid" name="sidebarid" style="margin-top:6px;">
                     <option value="1" <?php if($sidebarid==1){echo"selected";}?>>Day</option>
                     <option value="2" <?php if($sidebarid==2){echo"selected";}?>>Afternoon</option>
                     <option value="3" <?php if($sidebarid==3){echo"selected";}?>>Night</option>
                 </select>
+                <?php endif;?>
                 <hr>
                 <span><a href="accountmanagementdangerousactions">Account management</a></span>
                 <hr>

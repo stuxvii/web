@@ -1,63 +1,51 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/auth.php';
 
-$stmtcheckitem = $db->prepare("
+$stmtgetitem = $db->prepare("
 SELECT id, name, asset, owner, value, public, type
 FROM items
-WHERE approved = 1
+WHERE approved = 1 AND type = 'Dec' ORDER BY id DESC
 ");
-$stmtcheckitem->execute();
-$result = $stmtcheckitem->get_result();
+$stmtgetitem->execute();
+$dec = $stmtgetitem->get_result();
+
+$stmtgetitem = $db->prepare("
+SELECT id, name, asset, owner, value, public, type
+FROM items
+WHERE approved = 1 AND type = 'Shr' ORDER BY id DESC
+");
+$stmtgetitem->execute();
+$shr = $stmtgetitem->get_result();
+
+$stmtgetitem = $db->prepare("
+SELECT id, name, asset, owner, value, public, type
+FROM items
+WHERE approved = 1 AND type = 'Aud' ORDER BY id DESC
+");
+$stmtgetitem->execute();
+$snd = $stmtgetitem->get_result();
+
 ob_start();
 ?>
 <div class="deadcenter">
-<div class="itemborder">
+    <span id="purchase-status-message"></span>
+Decals
+<div class="catalogitemborder">
     <?php
-if ($result->num_rows > 0) {
-    ?>
-    <?php
-    while ($row = $result->fetch_assoc()) {
+if ($dec->num_rows > 0) {
+    while ($row = $dec->fetch_assoc()) {
         $id     = htmlspecialchars($row['id']);
         $itemname   = htmlspecialchars($row['name']);
         $owner  = htmlspecialchars($row['owner']);
         $value  = htmlspecialchars($row['value']);
         $public = htmlspecialchars($row['public']);
-        $type   = htmlspecialchars($row['type']);
     ?>
-    <style>
-        .catalogitemimg {
-            max-height: 128px;
-            max-width: 128px;
-            width: auto;
-            height: auto;
-        }
-    </style>
     <div class='catalogitem' data-item-id="<?php echo $id;?>"> <div class='catalogitemasset'>
             <?php echo $itemname; ?>
-            <?php
-            if ($type == "Shr" || $type == "Dec") {
-                ?>
                 <img class="catalogitemimg" src="getfile?id=<?php echo $id;?>" height="128" >
-                <?php
-            } else if ($type == "Aud") {
-                ?>
-                <audio controls style='width:240px;height:60px;'> 
-                    <source src="<?php echo "/getfile?id=" . $id;?>" type="audio/mpeg">
-                </audio>
-                <?php
-            }
-            ?>
             </div>
             <div class='catalogiteminfo'>
                 <span>
-                <?php 
-                switch ($type) { 
-                    case "Aud":  echo "An audio "; break;
-                    case "Dec":  echo "A decal "; break;
-                    case "Shr":  echo "A T-Shirt ";    break;
-                    default: echo "An asset ";
-                }
-                ?>
                 </span>
                 <span>Uploader: <?php echo getuser($owner)['username'];?></span>
                 <span>Price: <?php echo $value;?></span>
@@ -65,14 +53,85 @@ if ($result->num_rows > 0) {
             </div>
     
         </div>
-<?php } ?>
-
+<?php }} else {
+    echo "No items up for sale.";
+}?>
+</div>
+Shirts
+<div class="catalogitemborder">
+    <?php
+if ($shr->num_rows > 0) {
+    while ($row = $shr->fetch_assoc()) {
+        $id     = htmlspecialchars($row['id']);
+        $itemname   = htmlspecialchars($row['name']);
+        $owner  = htmlspecialchars($row['owner']);
+        $value  = htmlspecialchars($row['value']);
+        $public = htmlspecialchars($row['public']);
+    ?>
+    <div class='catalogitem' data-item-id="<?php echo $id;?>"> <div class='catalogitemasset'>
+            <?php echo $itemname; ?>
+                <img class="catalogitemimg" src="getfile?id=<?php echo $id;?>" height="128" >
+            </div>
+            <div class='catalogiteminfo'>
+                <span>
+                </span>
+                <span>Uploader: <?php echo getuser($owner)['username'];?></span>
+                <span>Price: <?php echo $value;?></span>
+                <button class="purchase-button" data-item-id="<?php echo $id; ?>" style="background-color:var(--good); height:32px; width:6em;">Purchase</button>
+            </div>
+    
+        </div>
+<?php }} else {
+    echo "No items up for sale.";
+}?>
+</div>
+Audios
+<div class="catalogitemborder">
+    <?php
+if ($snd->num_rows > 0) {
+    while ($row = $snd->fetch_assoc()) {
+        $id     = htmlspecialchars($row['id']);
+        $itemname   = htmlspecialchars($row['name']);
+        $owner  = htmlspecialchars($row['owner']);
+        $value  = htmlspecialchars($row['value']);
+        $public = htmlspecialchars($row['public']);
+    ?>
+    <div class='catalogitem' data-item-id="<?php echo $id;?>"> <div class='catalogitemasset'>
+            <?php echo $itemname; ?>
+                <audio controls style='width:240px;height:60px;'> 
+                    <source src="<?php echo "/getfile?id=" . $id;?>" type="audio/mpeg">
+                </audio>
+            </div>
+            <div class='catalogiteminfo'>
+                <span>
+                </span>
+                <span>Uploader: <?php echo getuser($owner)['username'];?></span>
+                <span>Price: <?php echo $value;?></span>
+                <button class="purchase-button" data-item-id="<?php echo $id; ?>" style="background-color:var(--good); height:32px; width:6em;">Purchase</button>
+            </div>
+    
+        </div>
+<?php }} else {
+    echo "No items up for sale.";
+}?>
+</div>
+</div>
 <script> 
 document.addEventListener('DOMContentLoaded', () => {
     const purchaseButtons = document.querySelectorAll('.purchase-button');
+    const scrollContainer = document.querySelectorAll('.catalogitemborder');
     const statusMessage = document.getElementById('purchase-status-message');
     const amountPesos = document.getElementById('amountofmoney');
-
+    scrollContainer.forEach(container => {
+            container.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                container.scrollBy({
+                    left: event.deltaY,
+                    top: 0
+                }
+            );
+        }
+    )})
     purchaseButtons.forEach(button => {
         button.addEventListener('click', function() {
             const itemId = this.getAttribute('data-item-id')
@@ -105,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.status === 'success') {
                     statusMessage.textContent = data.message || `Item ${itemId} purchased successfully!`;
-                    amountPesos.textContent = "You have " + data.newmoney + " ₱esos";
+                    amountPesos.textContent = data.newmoney;
                     statusMessage.style.color = 'green';
                 } else {
                     statusMessage.textContent = data.message || 'Purchase failed with an unknown error. You have not been charged.';
@@ -125,11 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-<?php } else {
-    echo "No items up for sale.";
-}
-echo "</div>";
-echo "</div>";
+<?php
 $page_content = ob_get_clean();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/template.php';
 ?>

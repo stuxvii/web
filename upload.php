@@ -79,6 +79,9 @@ function handle_db_operations(
     string $assettype, 
     string $inv
 ): void {
+    if ($assetvalue > 2147483647) { // failsafe for if the user feels silly enough to put a quadvigintillion dollars for their price
+        $assetvalue = 2147483647;
+    }
     $false = 0;
 
     try {

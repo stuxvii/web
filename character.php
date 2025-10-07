@@ -4,18 +4,29 @@ require_once 'brickcolor.php';
 
 $color_map = [
     'head_color' => 'head',
-    'trso_color' => 'torso',
-    'lleg_color' => 'leftleg',
-    'rleg_color' => 'rightleg',
-    'larm_color' => 'leftarm',
-    'rarm_color' => 'rightarm'
+    'trso_color' => 'trso',
+    'lleg_color' => 'lleg',
+    'rleg_color' => 'rleg',
+    'larm_color' => 'larm',
+    'rarm_color' => 'rarm'
 ];
 
 if ($uid === null || $db === null) {
-    http_response_code(500);
-    die("Authentication Error...");
+    http_response_code(400);
+    header("Location: index.php");
 }
 
+$invarray = json_decode($inv, true);
+$placeholders = implode(',', array_fill(0, count($invarray), '?'));
+$sql = "SELECT * FROM items WHERE id IN ($placeholders) AND type = 'Shr'";
+try {
+    $stmt = $db->prepare($sql);
+    $stmt->execute($invarray);
+
+    $result = $stmt->get_result();
+} catch (PDOException $e) {
+    echo "Database Error: " . $e->getMessage();
+}
 $insertAvatarStmt = $db->prepare("
     INSERT IGNORE INTO avatars (id) VALUES (?)
 ");
@@ -44,46 +55,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $update_data[$db_column] = (int)$color_value;
         }
 
-            if ($valid_request) {
-                $set_clauses = [];
-                $bind_types = '';
-                $bind_values = [];
+        $stmt = $db->prepare("UPDATE avatars SET colors = ? WHERE id = ?");
+        
+        $stmt->bind_param('si', json_encode($update_data), $uid);
 
-                foreach ($update_data as $db_column => $value) {
-                    $set_clauses[] = "$db_column = ?";
-                    $bind_types .= 'i';
-                    $bind_values[] = $value;
-                }
-            $bind_types .= 'i';
-            $bind_values[] = $uid;
+        $stmt->execute();
+        echo "Saved!";
+        $stmt->close();
+        exit;
+    } else if (isset($_POST['shirtting']) && $_POST['shirtting'] == '1') {
+        if (in_array((int)$_POST['tshirt'],$invarray)) {
+            $tshirt = (int)$_POST['tshirt'];
+            $stmt = $db->prepare("UPDATE avatars SET tshirt = ? WHERE id = ?");
+            $stmt->bind_param('ii', $tshirt, $uid);
+            if ($stmt->execute()) {
+                http_response_code(200);
+                echo "Equipped";
+            } else {
+                http_response_code(500);
+                echo "yikes server error!";
+            }
 
-            $sql_set = implode(', ', $set_clauses);
-            $sql = "UPDATE avatars SET $sql_set WHERE id = ?";
-            
-            $stmt = $db->prepare($sql);
-            
-            $stmt->bind_param($bind_types, ...$bind_values);
-
-            $stmt->execute();
-            echo "Saved!";
-            $stmt->close();
-            exit;
         } else {
             http_response_code(400);
-            echo "Invalid color data received.";
-            exit;
+            echo "You dont own this item, and are probably fucking around in devtools";
         }
+        exit;
     }
 }
+
 
 ob_start();
 if ($authsuccessful) :
 ?>
 <div class="diva" style="flex-direction:row;">
+    <div class="planecharacter">
     <div class="border" id="char">
-        <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);">
-            <img src="images/epicface.png" width='56' height='56'>
-        </span>
+        <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"></span>
         <div class="horiz">
             <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
             <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
@@ -95,7 +103,6 @@ if ($authsuccessful) :
         </div>
     </div>
     <div>
-        <a href="/">Home page</a>
         <div class="border">
             <div class="colorpicker" id="colorpicker">
                 <?php
@@ -105,6 +112,29 @@ if ($authsuccessful) :
                 ?>
             </div>
         </div>
+    </div>
+    </div>
+    <div class="catalogitemborder" style="flex-direction:column;max-height:40vh;">
+    <?php
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $id     = htmlspecialchars($row['id']);
+        $itname = htmlspecialchars($row['name']);
+        $owner  = htmlspecialchars($row['owner']);
+        $value  = htmlspecialchars($row['value']);
+        $public = htmlspecialchars($row['public']);
+    ?>
+    
+    <div class='catalogitem' data-item-id="<?php echo $id;?>"><div class='catalogitemasset'>
+        <?php echo $itname; ?>
+        <img class="catalogitemimg" src="getfile?id=<?php echo $id;?>" height="128" >
+        <button style="width: 4em;" onclick="settshirt(<?php echo $id;?>);">equip</button>
+    </div>
+    
+        </div>
+<?php }} else {
+    echo "You don't own any clothes.";
+}?>
     </div>
     <div class="border">
         <div class="vert">
@@ -118,15 +148,7 @@ if ($authsuccessful) :
         <script src="../titleanim.min.js"></script>
         <?php
             $bpdata = [];
-            $bodyparts_map = [
-                "head" => $head,
-                "trso" => $trso,
-                "larm" => $larm,
-                "rarm" => $rarm,
-                "lleg" => $lleg,
-                "rleg" => $rleg
-            ];
-            foreach ($bodyparts_map as $part_id => $sql_color_id) {
+            foreach ($avatarcolors as $part_id => $sql_color_id) {
                 $color_id = $sql_color_id;
                 $hex = array_search((int)$color_id, $brickcolor);
                 if ($hex) {

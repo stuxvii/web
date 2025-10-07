@@ -10,6 +10,8 @@ if (isset($_POST['itemid'])) {
     exit;
 }
 ob_start();
+$oldinv = json_decode($inv);
+$inv = array_reverse($oldinv);
 ?>
 <div class="deadcenter">
 <span><a href="/">Home</a> -- Your inventory</span>
@@ -17,7 +19,7 @@ ob_start();
     <?php
 
     if (!empty($inv)) {
-        foreach (json_decode($inv) as $v) {
+        foreach ($inv as $v) {
             $stmtcheckitem = $db->prepare('
         SELECT approved, name, asset, owner, value, public, type
         FROM items

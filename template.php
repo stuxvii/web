@@ -48,11 +48,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
                 :root{
                 --primary-color: #fff;
                 --secondary-color: #000;
-                --bgimg: url("cargonetlight.bmp");
                 --good: #00bb00;
                 --evil: #dd2222;
                 }
-
+                body {                background-image:
+                linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+                var(--bgimg);}
             <?php endif; if (!$movebg): ?>
                 body{animation-name: none;}
 
@@ -74,7 +75,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
             </style>
     </head>
     <body>
-    <div class="sidebars">
+    <div class="sidebars" <?php if (!$authsuccessful) {echo "style='flex-direction: column;'";}?>>
         <?php 
         global $sidebarid;
         global $sidebars;
@@ -117,7 +118,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
         <?php if ($authsuccessful) : ?>
             <div>
                 <a href="https://discord.gg/7JwYGHAvJV" target="_blank">Discord</a>
-                <a href="https://buymeacoffee.com/acidbox" target="_blank">Buy me a coffee</a>
+                <a href="/support" >Donate</a>
             </div>
             <div>
                 <?php if ($opperms) : ?>
@@ -132,8 +133,31 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/template.php"; // Finally, include th
 	</div>
     <?php
         echo "<div class='content'>";
-        echo $page_content;
+        if ($maintenanceon && !$opperms) :?>
+            <div class="deadcenter">
+                <div class="border">
+                    Maintenance in progress.
+                    <br>
+                    Check the #announcements channel in 
+                    <br>
+                    our discord server for updates and info.
+                </div>
+            </div>
+        <?php 
+        elseif ($opperms):
+            echo $page_content;
+        else:
+            echo $page_content;
+        endif;
         echo "</div>";
+        ?>
+	<div class="navbar" style="flex-direction:column;">
+    lsdblox - 2025. 
+    <br>
+    <em>no one at lsdblox is attempting to impersonate anybody. we're not affiliated with any brands, products, sites, etc. users are responsible for their own content.</em>
+    the tos and privacy policy are planned to be written soon. this website is a preliminary work.
+</div>
+        <?php
         global $sidebarid;
         global $sidebars;
         $rightside = true;

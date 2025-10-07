@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/databaseconfig.php';
+$maintenanceon = true;
 /* Info about token (and light yap):
 Generated using a slightly modified guidv4, 
 to not include hyphens because i think they look weird.
@@ -42,7 +43,7 @@ $authsuccessful = true;
 if (empty($token)) {
     $authsuccessful = false;
 } else {
-    if (!preg_match('/^[0-9a-f]{32}$/', $token)) { // I don't want to waste a whole entire SQL request on a token that shouldn't even be valid in the first place 😭🙏
+    if (!preg_match('/^[0-9a-f]{128}$/', $token)) { // I don't want to waste a whole entire SQL request on a token that shouldn't even be valid in the first place 😭🙏
         error_log($token);
         header("Location: logout.php");
         exit;
@@ -129,21 +130,9 @@ if (empty($token)) {
     $sidebarid = (int)($prefrow['sidebarid'] ?? 0);
     $sidebars = (bool)($prefrow['sidebars'] ?? false);
 
-    // get the user's little guy so i can display them globaly on the website on a little corner as they watch the user cutely browse the page
+    // get the user's little guy
     $fetchavatar = $db->prepare("
-    SELECT head, torso, leftarm, rightarm, leftleg, rightleg
-    FROM avatars
-    WHERE id = ?");
-
-    $fetchavatar->bind_param('i', $uid);
-    $fetchavatar->execute();
-    $colors = $fetchavatar->get_result();
-    
-    $clrrow = $colors ? $colors->fetch_assoc() : false;
-    $fetchavatar->close();
-    
-    $fetchavatar = $db->prepare("
-    SELECT head, torso, leftarm, rightarm, leftleg, rightleg
+    SELECT colors, tshirt
     FROM avatars
     WHERE id = ?");
 
@@ -154,13 +143,9 @@ if (empty($token)) {
     $clrrow = $colors_result ? $colors_result->fetch_assoc() : false; 
     $fetchavatar->close(); 
 
-    $head = (int)($clrrow['head'] ?? 0);
-    $trso = (int)($clrrow['torso'] ?? 0);
-    $lleg = (int)($clrrow['leftleg'] ?? 0);
-    $larm = (int)($clrrow['leftarm'] ?? 0);
-    $rleg = (int)($clrrow['rightleg'] ?? 0);
-    $rarm = (int)($clrrow['rightarm'] ?? 0);
-
+    $unprocessedcolors = (string)($clrrow['colors'] ?? 0);
+    $tshirt = (string)($clrrow['tshirt'] ?? 0);
+    $avatarcolors = json_decode($unprocessedcolors);
     function getuser($userid) {
         global $db;
         $getuserstmt = $db->prepare("

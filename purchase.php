@@ -29,7 +29,7 @@ if ($row['asset'] == '') {
 } else {
     if (in_array($itemid,$curinv)) {
         $status = 'error';
-        $msg = 'You already own this item!';
+        $msg = 'You already own that item!';
     } else if ($money > $row['value']) {
         $price = $row['value'];
         $owner = $row['owner'];

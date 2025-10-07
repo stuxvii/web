@@ -7,14 +7,21 @@
         background-position: right -128px bottom -128px;
     }
 }
-@font-face { 
+
+@font-face {
     font-family: dink;
     src: url(dink.ttf);
 }
+
+@font-face {
+    font-family: main;
+    src: url(LiberationSans-Regular.ttf);
+}
+
 :root {
     --primary-color: #000;
     --secondary-color: #fff;
-    --bgimg: url("images/key.png");
+    --bgimg: url("randombg.php");
     --bpm: 160;
     --good: #115511;
     --evil: #551111;
@@ -40,12 +47,16 @@ body,
 }
 
 body {
-    background-image: var(--bgimg);
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        var(--bgimg);
+    background-size: 64px;
     image-rendering: pixelated;
     background-position: center;
     background-color: #222;
+
     color: var(--secondary-color);
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: main;
     font-size: 1.5em;
     animation: movebg 10s infinite linear;
     overflow: hidden;
@@ -71,7 +82,6 @@ a:visited {
 .buttons {
     display: flex;
     flex-direction: row;
-    font-family: monospace;
 }
 
 .msgbox,
@@ -213,6 +223,8 @@ input[type="submit"] {
     background-color: var(--primary-color);
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
+    font-family: inherit;
+
 }
 
 input,
@@ -226,6 +238,7 @@ input {
     margin: 0;
 }
 
+a,
 button,
 input[type="submit"] {
     cursor: url('cursors/chicken.cur'), auto;
@@ -331,8 +344,20 @@ span img {
     flex-direction: row;
 }
 
+.catalogitemborder {
+    margin: 1vh;
+    display: flex;
+    flex-direction: row;
+    border: 2px solid var(--secondary-color);
+    position: relative;
+    padding: 1%;
+    max-width: 70vw;
+    overflow: scroll;
+    scroll-behavior: auto;
+}
+
 .catalogitem {
-    padding: 1em;
+    padding: 1%;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -345,15 +370,41 @@ span img {
     align-items: flex-end
 }
 
+.catalogitemimg {
+    max-height: 128px;
+    max-width: 128px;
+    width: auto;
+    height: auto;
+}
+
 .catalogitemasset {
     display: flex;
     flex-direction: column;
 }
 
 .navbar {
+    background-color: var(--primary-color);
+    box-shadow: inset 0px 0px 3px 1px var(--secondary-color);
     display: flex;
     justify-content: space-between;
-    font-size: 0.8em;
+    font-size: 0.7em;
     padding-left: 0.5em;
     padding-right: 0.5em;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+ul {
+    border: 1px solid var(--secondary-color);
+    padding: 0;
+    padding-inline-start: 0px;
+    margin:0;
+    list-style-type: none 
+}
+
+li {
+    padding: 1px;
 }

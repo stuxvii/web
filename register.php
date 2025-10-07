@@ -12,8 +12,8 @@ $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
 $discordtvalidateregex = '/^(?!.*?\.{2,})[a-z0-9_\.]{2,32}$/';
 
 function guidv4($data = null) {
-    $data = $data ?? random_bytes(64);
-    assert(strlen($data) == 64);
+    $data = $data ?? random_bytes(128);
+    assert(strlen($data) == 128);
     $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
     $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
     return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
@@ -77,14 +77,13 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
             SET 
                 username = ?,
                 pass = ?,
-                discordtag = ?,
                 registerts = ?,
                 authuuid = ?
             WHERE invkey = ? AND (username IS NULL OR username = '')
         ");
 
         $hashpw = password_hash($pass, PASSWORD_BCRYPT);
-        $stmt->bind_param('ssssss', 
+        $stmt->bind_param('sssss', 
             $un, 
             $hashpw, 
             $tag, 

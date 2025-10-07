@@ -3,19 +3,11 @@ require 'auth.php';
 require 'brickcolor.php';
 
 // --- Cooldown Configuration ---
-$cooldown_seconds = 15;
+$cooldown_seconds = 5;
 $cooldown_file_path = '/tmp/render_cooldowns/';
 // ------------------------------
 
 if ($authsuccessful) {
-    $input_colors = [
-        'head' => $head,
-        'trso' => $trso,
-        'larm' => $larm,
-        'rarm' => $rarm,
-        'lleg' => $lleg,
-        'rleg' => $rleg,
-    ];
 
     $cooldown_file = $cooldown_file_path . $uid . '.time';
 
@@ -37,13 +29,12 @@ if ($authsuccessful) {
     if ($time_since_last_render < $cooldown_seconds) {
         $wait_time = $cooldown_seconds - $time_since_last_render;
         http_response_code(429);
-        echo "Please wait $wait_time seconds before requesting another render.";
         exit;
     }
 
     $bpdata = [];
 
-    foreach ($input_colors as $part => $code) {
+    foreach ($avatarcolors as $part => $code) {
         if (!is_int($code) || $code <= 0) {
             continue;
         }
@@ -63,12 +54,19 @@ if ($authsuccessful) {
 
     if (empty($bpdata)) {
         http_response_code(400);
-        echo 'No valid brick color data provided to render.';
         exit;
     }
+
+    $stmt = $db->prepare("SELECT asset FROM items WHERE id = ?");
+    $stmt->bind_param('i', $tshirt);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $row = $result->fetch_assoc();
+
     $bpdata[] = [
         'id' => 'shirt',
-        'image' => 'uploads/68e253399153d.png'
+        'image' => $row['asset']
     ];
     $json_arg = json_encode($bpdata);
     error_log($json_arg);

@@ -93,6 +93,29 @@ async function save() {
     }
 }
 
+async function settshirt(id) {
+    const bodyparts = document.querySelectorAll('#char .bodypart');
+    const formData = new FormData(); 
+
+    formData.append('shirtting', '1');
+
+    formData.append('tshirt', id);
+
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData 
+        });
+
+        if (!response.ok) {
+            console.error('Save failed:', await response.text());
+        }
+
+    } catch (error) {
+        console.error('Fetch operation failed:', error);
+    }
+}
+
 async function render() {
     await save();
     rs.disabled = true;
