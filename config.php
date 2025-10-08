@@ -137,15 +137,37 @@ ob_start();
                 </select>
                 <?php endif;?>
                 <hr>
-                <span><a href="accountmanagementdangerousactions">Account management</a></span>
+                <span><a href="accountmanagement">Account management</a></span>
                 <hr>
                 <input type="submit" value="Save">
             </form>
         </div>
         <script>
+            const INTERNETYAMERO = document.getElementById('sidebars');
             const form = document.getElementById('plrform');
             const statusMessage = document.getElementById('status-message');
-
+            let playingyamero = false;
+            async function playyamero() {
+                if (playingyamero == false && INTERNETYAMERO.checked == true) {
+                    playingyamero = true;
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const response = await fetch("/angelbreaking.mp3");
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    const source = audioContext.createBufferSource();
+                    const gainnode = audioContext.createGain();
+                    gainnode.gain.value = 0.3;
+                    gainnode.connect(audioContext.destination);
+                    source.connect(gainnode);
+                    source.buffer = audioBuffer;
+                    source.loop = true;
+                    source.start(0);
+                }
+            }
+            INTERNETYAMERO.addEventListener('click', function(event) {
+                console.log(INTERNETYAMERO.checked)
+                playyamero()
+            })
             form.addEventListener('submit', function(event) {
                 event.preventDefault(); 
             

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/databaseconfig.php';
-$maintenanceon = true;
+$maintenanceon = false;
 /* Info about token (and light yap):
 Generated using a slightly modified guidv4, 
 to not include hyphens because i think they look weird.
@@ -52,7 +52,7 @@ if (empty($token)) {
     $db = get_db_connection();
     
     $stmt = $db->prepare("
-        SELECT id, username, pass, discordtag, isoperator
+        SELECT id, username, pass, discordid, isoperator
         FROM users 
         WHERE authuuid = ?
     ");
@@ -75,7 +75,7 @@ if (empty($token)) {
     // If it was successful, go get everything else >:]
     $name = $row['username'] ?? null;
     $passwordhash = $row['pass'] ?? null;
-    $discordtag = $row['discordtag'] ?? null;
+    $discordid = $row['discordid'] ?? null;
     $opperms = $row['isoperator'] ?? null;
 
     $authsuccessful = true; // user is valid ^_^
@@ -90,8 +90,8 @@ if (empty($token)) {
     $econ = $checkifecon->get_result();
     $econrow = $econ ? $econ->fetch_assoc() : false;
 
-    $money = $econrow['money'];
-    $inv = $econrow['inv'];
+    $money = $econrow['money'] ?? null;
+    $inv = $econrow['inv'] ?? null;
 
     if ( time() - $econrow['lastbuxclaim'] > 43200) { // 12 hours
         $stipend = true;
@@ -149,7 +149,7 @@ if (empty($token)) {
     function getuser($userid) {
         global $db;
         $getuserstmt = $db->prepare("
-        SELECT username, discordtag, isoperator
+        SELECT username, discordid, isoperator
         FROM users 
         WHERE id = ?
         ");
@@ -167,7 +167,7 @@ if (empty($token)) {
         echo "<div class='diva'>";
         echo "Git Docksed xD";
         echo "<br>Ur Name: ";echo $name;
-        echo "<br> Ur Discord Tag: ";echo $discordtag;
+        echo "<br> Ur Discord Tag: ";echo $discordid;
         echo "<br> Ur Eye Pees: ";echo $_SERVER['REMOTE_ADDR'];
         echo "<br> Are you OP? ";
         if ($opperms == 1) {

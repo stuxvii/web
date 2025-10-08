@@ -94,11 +94,9 @@ async function save() {
 }
 
 async function settshirt(id) {
-    const bodyparts = document.querySelectorAll('#char .bodypart');
-    const formData = new FormData(); 
-
+    const formData = new FormData();
+    const btn = document.getElementById(String(id));
     formData.append('shirtting', '1');
-
     formData.append('tshirt', id);
 
     try {
@@ -107,12 +105,45 @@ async function settshirt(id) {
             body: formData 
         });
 
-        if (!response.ok) {
-            console.error('Save failed:', await response.text());
+        if (response.ok) {
+            btn.innerHTML = "Done!"
+        } else {
+            console.error('Equip failed:', await response.text());
         }
 
     } catch (error) {
         console.error('Fetch operation failed:', error);
+    } finally {
+        setTimeout(() => {
+            btn.innerHTML = "Equip"
+            btn.disabled = false
+        }, 3000);
+    }
+}
+
+async function unequipshirt() {
+    const formData = new FormData();
+    const btn = document.getElementById("unequipbutton");
+    formData.append('nomoreshirt', '1');
+
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData 
+        });
+
+        if (response.ok) {
+            btn.innerHTML = "Done!"
+        } else {
+            console.error('failed:', await response.text());
+        }
+
+    } catch (error) {
+        console.error('Fetch operation failed:', error);
+    } finally {
+        setTimeout(() => {
+            btn.innerHTML = "Unequip current shirt"
+        }, 3000);
     }
 }
 

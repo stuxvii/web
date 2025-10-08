@@ -46,30 +46,28 @@ function login($un, $pass) {
         echo error($invalid);
     }
 }
-
+ob_start();
 ?>
-<div class="content">
-        <div class="deadcenter">
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-                Username: <input type="text" name="name">
-                <br>
-                <br>
-                Password: <input type="password" name="pass">
-                <br>
-                <br>
-                <input type="submit" name="submit" value="Login"><em> (saves a cookie to your device)</em>
-            </form>
-            <br>
-            <a href="resetpassword.php">Forgot your password?</a>
-            <br>
-            <div class="msgbox">
-                <br>
-                <?php
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                login(trim($_POST['name']),$_POST['pass']);
-            }
-            ?>
-        </div>
+<style>
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction:column;
+}
+</style>
+<div class="deadcenter" style="justify-content: center;">
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        Username: <input type="text" name="name">
+        <br>
+        Password: <input type="password" name="pass">
+        <br>
+        <input type="submit" name="submit" value="Login"><em> (saves a cookie to your device)</em>
+    </form>
+    <br>
+    <div class="msgbox">
+        <br>
+        <?php if ($_SERVER["REQUEST_METHOD"] == "POST") { login(trim($_POST['name']),$_POST['pass']); } ?>
     </div>
 </div>
 <?php 

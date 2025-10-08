@@ -44,6 +44,8 @@ body,
 .main,
 .sidebars {
     width: 100%;
+    height: 100%;
+    overflow: scroll;
 }
 
 body {
@@ -59,7 +61,6 @@ body {
     font-family: main;
     font-size: 1.5em;
     animation: movebg 10s infinite linear;
-    overflow: hidden;
 }
 
 img {
@@ -89,6 +90,8 @@ a:visited {
 .border {
     display: flex;
     max-height: 1000px;
+    overflow: scroll;
+
 }
 
 .msgbox {
@@ -120,6 +123,7 @@ a:visited {
 .content {
     justify-content: center;
     height: 100%;
+    align-items:center;
     display: flex;
     flex-direction: column;
 }
@@ -129,6 +133,7 @@ a:visited {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    height: 100vh;
 }
 
 .sbleft {
@@ -137,6 +142,7 @@ a:visited {
 
 .sbright img,
 .sbleft img {
+    width: 10vw;
     height: 100vh;
 }
 
@@ -174,12 +180,6 @@ a:visited {
 
 .btmh {
     flex-direction: column-reverse;
-}
-
-@media only screen and (orientation: portrait) {
-    .btmh {
-        margin-bottom: 3vh;
-    }
 }
 
 .midh {
@@ -231,7 +231,7 @@ input,
 button,
 select {
     padding: 5px;
-    font-size: 0.8em;
+   font-size: 1rem;
 }
 
 input {
@@ -384,10 +384,11 @@ span img {
 
 .navbar {
     background-color: var(--primary-color);
-    box-shadow: inset 0px 0px 3px 1px var(--secondary-color);
+    box-shadow: 0px 3px 3px 0px var(--secondary-color);
     display: flex;
     justify-content: space-between;
-    font-size: 0.7em;
+    font-size: 1rem;
+
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
@@ -397,6 +398,7 @@ span img {
     flex-direction: column;
 }
 
+
 ul {
     border: 1px solid var(--secondary-color);
     padding: 0;
@@ -404,7 +406,9 @@ ul {
     margin:0;
     list-style-type: none 
 }
-
+.bottomnavbar {
+    box-shadow: 0px -3px 3px 0px var(--secondary-color);
+}
 li {
     padding: 1px;
 }

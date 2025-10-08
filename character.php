@@ -17,6 +17,7 @@ if ($uid === null || $db === null) {
 }
 
 $invarray = json_decode($inv, true);
+if ($invarray) {
 $placeholders = implode(',', array_fill(0, count($invarray), '?'));
 $sql = "SELECT * FROM items WHERE id IN ($placeholders) AND type = 'Shr'";
 try {
@@ -26,6 +27,7 @@ try {
     $result = $stmt->get_result();
 } catch (PDOException $e) {
     echo "Database Error: " . $e->getMessage();
+}
 }
 $insertAvatarStmt = $db->prepare("
     INSERT IGNORE INTO avatars (id) VALUES (?)
@@ -81,6 +83,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "You dont own this item, and are probably fucking around in devtools";
         }
         exit;
+    } else if (isset($_POST['nomoreshirt']) && $_POST['nomoreshirt'] == '1') {
+        $tshirt = NULL;
+        $stmt = $db->prepare("UPDATE avatars SET tshirt = ? WHERE id = ?");
+        $stmt->bind_param('ii', $tshirt, $uid);
+        if ($stmt->execute()) {
+            http_response_code(200);
+            echo "Equipped";
+        } else {
+            http_response_code(500);
+            echo "yikes server error!";
+        }
+        exit;
     }
 }
 
@@ -114,6 +128,8 @@ if ($authsuccessful) :
         </div>
     </div>
     </div>
+    <div style="display:flex;flex-direction:column;align-items:baseline;">
+    <button style="width: 10em;" id="unequipbutton" onclick="unequipshirt();">Unequip current shirt</button>
     <div class="catalogitemborder" style="flex-direction:column;max-height:40vh;">
     <?php
 if ($result->num_rows > 0) {
@@ -128,14 +144,14 @@ if ($result->num_rows > 0) {
     <div class='catalogitem' data-item-id="<?php echo $id;?>"><div class='catalogitemasset'>
         <?php echo $itname; ?>
         <img class="catalogitemimg" src="getfile?id=<?php echo $id;?>" height="128" >
-        <button style="width: 4em;" onclick="settshirt(<?php echo $id;?>);">equip</button>
+        <button style="width: 4em;" id="<?php echo $id;?>" onclick="settshirt(<?php echo $id;?>);">Equip</button>
     </div>
     
         </div>
 <?php }} else {
     echo "You don't own any clothes.";
 }?>
-    </div>
+    </div></div>
     <div class="border">
         <div class="vert">
             <button onclick="render();" id="renderstat" class="left">Save</button>

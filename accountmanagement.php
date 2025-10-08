@@ -6,11 +6,8 @@ if (!$authsuccessful) {
 }
 
 function guidv4($data = null) {
-    $data = $data ?? random_bytes(128);
-    assert(strlen($data) == 128);
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
-    return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
+    $data = random_bytes(64);
+    return bin2hex($data);
 }
 
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
@@ -61,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (strlen($pass) < 15) {
             $msg = "New password is not long<br>enough. Suggestion: 6 random<br>uncommon english words.";
         } else {
-            $newpass = password_hash($pass,PASSWORD_BCRYPT);
+            $newpass = password_hash($pass,PASSWORD_ARGON2ID);
             $updstmt = $db->prepare("
                 UPDATE users 
                 SET 

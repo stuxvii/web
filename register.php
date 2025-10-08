@@ -9,27 +9,22 @@ require_once __DIR__ . '/databaseconfig.php';
 $db = get_db_connection();
 
 $usernamevalidateregex = '/^[a-zA-Z0-9_]{3,20}$/';
-$discordtvalidateregex = '/^(?!.*?\.{2,})[a-z0-9_\.]{2,32}$/';
 
 function guidv4($data = null) {
-    $data = $data ?? random_bytes(128);
-    assert(strlen($data) == 128);
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
-    return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
+    $data = random_bytes(64);
+    return bin2hex($data);
 }
 
 function error($reason) {
     return "<img src=\"error.png\" height='32'><span class=\"info\">$reason</span>";
 }
 
-function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
+function registernvalidate($un,$key,$pass,$confirmpass) {
     global $usernamevalidateregex;
-    global $discordtvalidateregex;
     global $db;
 
-    if ($key === '' || $un === '' || $pass === '' || $tag === '') {
-        echo error("An invitation key, Discord username, site username, and password are required.");
+    if ($key === '' || $un === '' || $pass === '') {
+        echo error("An invitation key, username, and password are required.");
         return;
     }
 
@@ -45,11 +40,6 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
 
     if (!preg_match($usernamevalidateregex, $un)) {
         echo error("The username '$un' is invalid.");
-        return;
-    }
-
-    if (!preg_match($discordtvalidateregex, $tag)) {
-        echo error("Your Discord username was not valid. Remember to not include the \"@\" symbol at the start of your tag.");
         return;
     }
 
@@ -82,11 +72,10 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
             WHERE invkey = ? AND (username IS NULL OR username = '')
         ");
 
-        $hashpw = password_hash($pass, PASSWORD_BCRYPT);
+        $hashpw = password_hash($pass, PASSWORD_ARGON2ID);
         $stmt->bind_param('sssss', 
             $un, 
-            $hashpw, 
-            $tag, 
+            $hashpw,
             time(), 
             guidv4(), 
             $key
@@ -125,12 +114,7 @@ function registernvalidate($un,$key,$pass,$confirmpass,$tag) {
                     <br>
                     Password confirmation: <br>
                     <input type="password" name="confirmpass">
-                    <br>
-                    <br>
-                    Discord: <br>
-                    <div style="position:relative; right:0.84em;"><span style="font-size:1.4em;">@</span><input type="text" name="discord"></div>
-                    (for contacting)
-                    <br>                   
+                    <br>               
                     <br>
                     Inv Key:
                     <br>

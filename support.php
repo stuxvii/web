@@ -21,24 +21,25 @@ ob_start();
         <div style="display:flex;flex-direction:row;width:100%;justify-content: space-between;">
             <div style="display:flex;flex-direction:column;">
                 <a href="https://buymeacoffee.com/acidbox" target="_blank">Go to my buy me a coffee</a>
-                <button onclick="copy();" id="copybutton">Copy Monero address</button>
+                <button onclick="copy();" id="copybutton">Copy Monero address (More reliable)</button>
             </div>            
             <div style="display:flex;flex-direction:column;">
-                Generous donators (updated manually)
+                Generous donators
                 <ul>
-                    <li>edenco (uid:5) (dc:@imverywell) - 8$</li>
+                    <li>edenco (uid:2) 14$</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 <script>
-    let btn = document.getElementById("copybutton");
-    async function copy() {
+let btn = document.getElementById("copybutton");
+async function copy() {
     await navigator.clipboard.writeText("45GnxFz5K5mXMf3Fs96ZMtReEeCimF8JUJoVbaEvm2sLUtS4UJAqyUME7c3DBhef3MJ45oPNDSzD2T9ijmzVS4YFEKzfqAC");
+    const btntext = btn.textContent;
     btn.textContent = "Thank you!";
     setTimeout(() => {
-        btn.textContent = "Copy monero address";
+        btn.textContent = btntext;
     }, 3000);
 }
 </script>
