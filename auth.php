@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/databaseconfig.php';
-$maintenanceon = false;
+$maintenanceon = false
+;
 /* Info about token (and light yap):
 Generated using a slightly modified guidv4, 
 to not include hyphens because i think they look weird.
@@ -86,7 +87,7 @@ if (empty($token)) {
 
     $checkifecon->bind_param('i', $uid);
     $checkifecon->execute();
-    
+
     $econ = $checkifecon->get_result();
     $econrow = $econ ? $econ->fetch_assoc() : false;
 

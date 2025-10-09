@@ -118,7 +118,7 @@ ob_start();
 if ($result->num_rows > 0) {
 while ($row = $result->fetch_assoc()) {
     $id     = htmlspecialchars($row['id']);
-    $name   = htmlspecialchars($row['name']);
+    $itemname   = htmlspecialchars($row['name']);
     $owner  = htmlspecialchars($row['owner']);
     $value  = htmlspecialchars($row['value']);
     $public = htmlspecialchars($row['public']);
@@ -126,9 +126,9 @@ while ($row = $result->fetch_assoc()) {
     ?>
     <div class='item' id="<?php echo $id;?>">
         <div class='iteminfo'>
-            <?php echo $name; ?>
+            <?php echo $itemname; ?>
             <br>
-            Selling for ₱ <?php echo $value; ?>
+            Selling for ¥<?php echo $value; ?>
             <br>
             Uploaded by: <?php echo getuser($owner)['username'];?>
             </div>

@@ -38,7 +38,7 @@ function login($un, $pass) {
 
     if ($user_data && password_verify($pass, $user_data['pass'])) {
 
-        setcookie('auth', $user_data['authuuid'], time() + (86400 * 30), "/", "acdbx.top", true, true);
+        setcookie('auth', $user_data['authuuid'], time() + (86400 * 30), "/", "lsdblox.cc", true, true);
         header("Location: index.php");
         exit;
         $db->close();

@@ -10,7 +10,7 @@ if (!empty($oldinv)) {
 }
 ?>
 <div class="deadcenter">
-<div class="itemborder">
+<div class="catalogitemborder">
 <?php
 
 if (!$emptyinv) {
@@ -32,26 +32,47 @@ if (!$emptyinv) {
             }
         }
         ?>
-<div class='item' id="<?php echo $v; ?>">
-    <div class='iteminfo'>
-        <?php echo $iteminfo['name'];
-        echo ' - id:' . $v ?>
-        <br> By 
-        <?php echo getuser($iteminfo['owner'])['username']; ?>
+    <div class='catalogitem' id="<?php echo $v; ?>">
+        <div class='catalogiteminfo'>
+
+            <?php switch ($iteminfo['type']) {
+                    case "Shr":
+                        echo "A shirt";
+                        break;
+                    case "Aud":
+                        echo "A sound";
+                        break;
+                    case "Dec":
+                        echo "A decal";
+                        break;
+                    }?>
         </div>
-        <div style="display:flex;flex-direction:row;">
+        <div class="catalogitemasset">
             <?php
-            if ($iteminfo['type'] == 'Shr' || $iteminfo['type'] == 'Dec'):?>
-                <img src="getfile?id=<?php echo $v; ?>" height="128" >
-            <?php elseif ($iteminfo['type'] == 'Aud'): ?>
-            <audio controls> 
-                <source src="<?php echo '/getfile?id=' . $v; ?>" type="audio/mpeg">
-            </audio>
-            <?php
-            elseif (!$iteminfo['type']):
+            if ($iteminfo['approved'] == 1) {
+            switch ($iteminfo['type']) {
+                case "Shr":
+                    echo "<img class='catalogitemimg' src='getfile?id=$v'>";
+                    break;
+                case "Dec":
+                    echo "<img class='catalogitemimg' src='getfile?id=$v'>";
+                    break;
+                case "Aud":?>
+                    <audio controls id="player">
+                        <source src="getfile?id=<?php echo $v; ?>" type="audio/mp3"/>
+                    </audio>
+                    
+                    <?php break;
+                }
+            } else if ($iteminfo['approved'] == 0) {
+                echo "Item is pending moderation.";
+            } else {
                 echo "Asset rejected.";
-            endif;
+            }
             ?>
+<a href="item.php?id=<?php echo $v;?>">
+    <?php echo $iteminfo['name'];?>
+</a>
         </div>
     </div>
 <?php

@@ -95,22 +95,21 @@ if ($CrawlerDetect->isCrawler()) {
             <a href="inventory">Inventory</a>
         </div>
         <div>
-            <span><?php echo htmlspecialchars($name); ?></span>
+            <a href="profile?id=<?php echo $uid;?>"><?php echo htmlspecialchars($name); ?></a>
             <?php
-            $cursymbol = '₱ ';
+            $cursymbol = '¥';
             switch ($uid) {
                 case 2:
-                    $cursymbol = '₺ ';
+                    $cursymbol = '₺';
                     break;
                 case 3:
-                    $cursymbol = '₴ ';
+                    $cursymbol = '₴';
                     break;
                 case 4:
-                    $cursymbol = 'دم ';
+                    $cursymbol = 'دم';
                     break;
             }
-            if ($sidebars) { $cursymbol = '¥ '; }
-            echo $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
+            echo 'has ' . $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
             
 else: ?>
         <div>
@@ -123,31 +122,37 @@ else: ?>
 	</div>
 	<div class="navbar">
         <?php if ($authsuccessful): ?>
-            <div>
-                <a href="https://discord.gg/7JwYGHAvJV" target="_blank">Discord</a>
-                <a href="/support" >Donate</a>
-            </div>
-            <div>
-                <?php if ($opperms): ?>
-                    <a href="moderation">Moderate assets</a>
-                    <a href="admin">Admin panel</a>
-                    <?php endif; ?>
-                    <a href="config">Settings</a>
-                    <a href="logout">Log out</a>
+        <div>
+            <a href="https://discord.gg/7JwYGHAvJV" target="_blank">Discord</a>
+            <a href="/support" >Donate</a>
+        </div>
+        <div>
+            <?php if ($opperms): ?>
+                <a href="moderation">Moderate assets</a>
+                <a href="admin">Admin panel</a>
+                <?php endif; ?>
+                <a href="config">Settings</a>
+                <a href="logout">Log out</a>
         </div>
         <?php endif; ?>
 	</div>
+	<div class="navbar" style="background-color:var(--evil);">
+    <?php if ($_SERVER['SERVER_NAME'] == "acdbx.top"): ?>
+        It has been detected that you're still on the older domain! (<?php echo $_SERVER['SERVER_NAME']; ?>) Please use 'lsdblox.cc' from now on, as this domain will soon be phased out, and replaced with other content.
+    <?php endif;?>
+	</div>
     <?php
     echo "<div class='content'>";
-    if ($maintenanceon && !$opperms):
+    if ($maintenanceon && !$opperms):?>
+    <div class='border'>lsdblox is currently<br>under maintenance.<br>check #announcements &<br>#lsdblox for information.</div>
+    <?php
     else:
         echo $page_content;
     endif;
     echo '</div>';
     ?>
 	<div class="navbar bottomnavbar" style="flex-direction:column;">
-        lsdblox - 2025. 
-        <br>
+        <a href="https://github.com/stuxvii/web">lsdblox - 2025. always ask for OSS.</a>
         <em>no one at lsdblox is attempting to impersonate anybody. we're not affiliated with any brands, products, sites, etc. users are responsible for their own content.</em>
         the tos and privacy policy are planned to be written soon. this website is a preliminary work.
     </div>

@@ -104,33 +104,35 @@ if ($authsuccessful) :
 ?>
 <div class="diva" style="flex-direction:row;">
     <div class="planecharacter">
-    <div class="border" id="char">
-        <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-        <div class="horiz">
-            <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
-            <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
-            <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+        <div class="border" id="char">
+            <span class="bodypart" id="head" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+            <div class="horiz">
+                <span class="bodypart limb" id="larm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+                <span class="bodypart" id="trso" color="23" style="background-color: rgb(13, 105, 172);"></span>
+                <span class="bodypart limb" id="rarm" color="1009" style="background-color: rgb(255, 255, 0);"></span>
+            </div>
+            <div class="horiz">
+                <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+                <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
+            </div>
         </div>
-        <div class="horiz">
-            <span class="bodypart limb" id="lleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-            <span class="bodypart limb" id="rleg" color="301" style="background-color: rgb(80, 109, 84);"></span>
-        </div>
-    </div>
-    <div>
-        <div class="border">
-            <div class="colorpicker" id="colorpicker">
-                <?php
-                foreach ($brickcolor as $k => $v) {
-                    echo "<span class='color' colorbrick='$v' style='background-color:#$k;'></span>";
-                }
-                ?>
+        <div>
+            <div class="border">
+                <div class="colorpicker" id="colorpicker">
+                    <?php
+                    foreach ($brickcolor as $k => $v) {
+                        echo "<span class='color' colorbrick='$v' style='background-color:#$k;'></span>";
+                    }
+                    ?>
+                </div>
             </div>
         </div>
     </div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:baseline;">
-    <button style="width: 10em;" id="unequipbutton" onclick="unequipshirt();">Unequip current shirt</button>
-    <div class="catalogitemborder" style="flex-direction:column;max-height:40vh;">
+    <div class="planecharacter">
+
+    <div style="display:flex;flex-direction: column;align-items: stretch;">
+    <button id="unequipbutton" onclick="unequipshirt();">Unequip current shirt</button>
+    <div style="max-height:29vh;"class="itemborder">
     <?php
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
@@ -141,10 +143,11 @@ if ($result->num_rows > 0) {
         $public = htmlspecialchars($row['public']);
     ?>
     
-    <div class='catalogitem' data-item-id="<?php echo $id;?>"><div class='catalogitemasset'>
+    <div class='catalogitem' data-item-id="<?php echo $id;?>">
+        <div class='catalogitemasset'>
         <?php echo $itname; ?>
         <img class="catalogitemimg" src="getfile?id=<?php echo $id;?>" height="128" >
-        <button style="width: 4em;" id="<?php echo $id;?>" onclick="settshirt(<?php echo $id;?>);">Equip</button>
+        <button id="<?php echo $id;?>" onclick="settshirt(<?php echo $id;?>);">Equip</button>
     </div>
     
         </div>
@@ -159,9 +162,9 @@ if ($result->num_rows > 0) {
         </div>
     </div>
 </div>
+    </div>
 
         <script src="../character.js"></script>
-        <script src="../titleanim.min.js"></script>
         <?php
             $bpdata = [];
             foreach ($avatarcolors as $part_id => $sql_color_id) {

@@ -223,6 +223,7 @@ input[type="submit"] {
     background-color: var(--primary-color);
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
+    border-radius: 2px;
     font-family: inherit;
 
 }
@@ -236,12 +237,6 @@ select {
 
 input {
     margin: 0;
-}
-
-a,
-button,
-input[type="submit"] {
-    cursor: url('cursors/chicken.cur'), auto;
 }
 
 input[type="submit"] {
@@ -282,6 +277,7 @@ input[type="submit"] {
 
 .color {
     border: 2px ridge var(--secondary-color);
+    border-radius: 2px;
     cursor: pointer;
     display: flex;
     height: 14px;
@@ -315,6 +311,8 @@ span img {
     justify-content: center;
     border: 2px solid var(--secondary-color);
     position: relative;
+    border-radius: 2px;
+
     padding: 1%;
     max-height: 50vh;
     word-break: break-all;
@@ -346,35 +344,39 @@ span img {
 
 .catalogitemborder {
     margin: 1vh;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 2fr));
+    gap: 16px; 
+    justify-content: space-between;
     border: 2px solid var(--secondary-color);
+    border-radius: 2px;
+
     position: relative;
     padding: 1%;
-    max-width: 70vw;
+    height: 70vh;
+    width: 70vw;
     overflow: scroll;
-    scroll-behavior: auto;
 }
 
 .catalogitem {
     padding: 1%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
+    border: 2px solid var(--secondary-color);
+    border-radius: 2px;
+
+
 }
 
 .catalogiteminfo {
     display: flex;
     flex-direction: column;
-    align-items: flex-end
 }
 
 .catalogitemimg {
-    max-height: 128px;
-    max-width: 128px;
-    width: auto;
-    height: auto;
+    width: 128px;
+    height: 128px;
 }
 
 .catalogitemasset {
@@ -398,7 +400,6 @@ span img {
     flex-direction: column;
 }
 
-
 ul {
     border: 1px solid var(--secondary-color);
     padding: 0;
@@ -411,4 +412,18 @@ ul {
 }
 li {
     padding: 1px;
+}
+
+iframe {
+    width: 100%;
+    border: none;
+    height: 100%;
+}
+
+h1 {
+    margin:0;
+}
+
+audio {
+    width: 256px;
 }

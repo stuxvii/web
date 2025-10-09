@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $candoaction = false;
     $rowsaffected = NULL;
 
-    if (!isset($_POST['confirm']) || !password_verify($_POST['confirm'],$passwordhash)) { //fixed
+    if (!isset($_POST['confirm']) || !password_verify($_POST['confirm'],$passwordhash)) {
         $msg = "The password confirmation<br>you inputted was invalid.";
     } else {
         $candoaction=true;
