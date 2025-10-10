@@ -1,14 +1,14 @@
 # Barebones setup instructions
-This guide will mostly focus on setup steps for sys-admins running the "Arch" Linux distribution.
-0. Prerequisites:
-[A fully up to date and configured MariaDB database](https://wiki.archlinux.org/title/MariaDB)
-[PHP](https://wiki.archlinux.org/title/PHP)
-Webserver software that supports PHP (like [Apache's HTTPD](https://wiki.archlinux.org/title/Apache_HTTP_Server))
-[Composer](https://wiki.archlinux.org/title/PHP#Composer)
-FFMpeg ([and its Composer plugin for PHP](https://github.com/PHP-FFMpeg/PHP-FFMpeg))
-ImageMagick ([and its plugin for PHP](https://archlinux.org/packages/extra/x86_64/php-imagick/))
-You can find how to install and setup these at their corresponding wiki/doc pages I linked.
-For the database, you will have to painstakingly set every single table and column yourself. I apologize for not bothering to give you a .sql template.
+This guide will mostly focus on setup steps for sys-admins running the "Arch" Linux distribution.<br>
+0. Prerequisites:<br>
+[A fully up to date and configured MariaDB database](https://wiki.archlinux.org/title/MariaDB)<br>
+[PHP](https://wiki.archlinux.org/title/PHP)<br>
+Webserver software that supports PHP (like [Apache's HTTPD](https://wiki.archlinux.org/title/Apache_HTTP_Server))<br>
+[Composer](https://wiki.archlinux.org/title/PHP#Composer)<br>
+FFMpeg ([and its Composer plugin for PHP](https://github.com/PHP-FFMpeg/PHP-FFMpeg))<br>
+ImageMagick ([and its plugin for PHP](https://archlinux.org/packages/extra/x86_64/php-imagick/))<br>
+You can find how to install and setup these at their corresponding wiki/doc pages I linked.<br>
+For the database, you will have to painstakingly set every single table and column yourself. I apologize for not bothering to give you a .sql template.<br>
 
 1. Create a file called "databaseconfig.php" with contents like these:
 
