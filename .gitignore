@@ -16,6 +16,7 @@ renders/
 
 # leaking my own shit is not rlly cool dud
 databaseconfig.php
+cdn/
 
 # copyright
 *.mp3

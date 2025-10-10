@@ -33,9 +33,10 @@ ob_start();
     </div>
 </div>
 <script>
+const walletaddress = "45GnxFz5K5mXMf3Fs96ZMtReEeCimF8JUJoVbaEvm2sLUtS4UJAqyUME7c3DBhef3MJ45oPNDSzD2T9ijmzVS4YFEKzfqAC";
 let btn = document.getElementById("copybutton");
 async function copy() {
-    await navigator.clipboard.writeText("45GnxFz5K5mXMf3Fs96ZMtReEeCimF8JUJoVbaEvm2sLUtS4UJAqyUME7c3DBhef3MJ45oPNDSzD2T9ijmzVS4YFEKzfqAC");
+    await navigator.clipboard.writeText(walletaddress);
     const btntext = btn.textContent;
     btn.textContent = "Thank you!";
     setTimeout(() => {

@@ -109,7 +109,7 @@ if ($CrawlerDetect->isCrawler()) {
                     $cursymbol = 'دم';
                     break;
             }
-            echo 'has ' . $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
+            echo $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
             
 else: ?>
         <div>
@@ -136,9 +136,9 @@ else: ?>
         </div>
         <?php endif; ?>
 	</div>
-	<div class="navbar" style="background-color:var(--evil);">
+	<div class="navbar" style="background-color:var(--evil);justify-content: center;">
     <?php if ($_SERVER['SERVER_NAME'] == "acdbx.top"): ?>
-        It has been detected that you're still on the older domain! (<?php echo $_SERVER['SERVER_NAME']; ?>) Please use 'lsdblox.cc' from now on, as this domain will soon be phased out, and replaced with other content.
+        <div>It has been detected that you're still on the older domain! (<?php echo $_SERVER['SERVER_NAME']; ?>) Please use '<a href="https://lsdblox.cc">lsdblox.cc</a>' from now on, as this domain will soon be phased out, and replaced with other content.</div>
     <?php endif;?>
 	</div>
     <?php

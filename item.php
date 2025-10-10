@@ -16,7 +16,8 @@ $row = [];
 $itemname = NULL;
 $invarray = json_decode($inv);
 $owned = false;
-if (in_array($itemid,$invarray)) {
+
+if (!empty($invarray) && in_array($itemid,$invarray)) {
     $owned = true;
 }
 if ($result->num_rows > 0) {
@@ -56,7 +57,8 @@ ob_start();
         <h1><?php echo $itemname;?></h1>
         <div style="flex-direction:column;display:flex;"><span>Uploader:</span>
         <a href="profile?id=<?php echo $owner;?>"><?php echo $ownername;?></a></div>
-        <button onclick="purchase(<?php echo $itemid;?>)" style="background-color:var(--good);">
+        <div style="flex-direction:row;display:flex;">
+        <button <?php if (!$owned) {echo "onclick=\"purchase($itemid)\"";} ?> style="background-color:var(<?php if ($owned) {echo "--primary-color";} else {echo "--good";} ?>);">
             <?php 
             if (!$owned) {
                 if ($value > 0) {
@@ -69,6 +71,12 @@ ob_start();
             }
             ?>
         </button>
+        <?php if ($owner == $uid): ?>
+        <button onclick="purchase(<?php echo $itemid;?>)" style="background-color:var(--good);">
+            Manage
+        </button>
+        <?php endif;?>
+    </div>
     </div> <?php } else { ?> User not found.<?php }?>
 </div>
 <script> 

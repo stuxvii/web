@@ -219,6 +219,7 @@ label {
 input,
 button,
 select,
+textarea,
 input[type="submit"] {
     background-color: var(--primary-color);
     color: var(--secondary-color);
@@ -362,11 +363,10 @@ span img {
     padding: 1%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     border: 2px solid var(--secondary-color);
     border-radius: 2px;
-
-
+    justify-content: center;
 }
 
 .catalogiteminfo {

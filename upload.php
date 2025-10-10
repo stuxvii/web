@@ -77,17 +77,20 @@ function handle_db_operations(
     int $uid, 
     int $assetvalue, 
     string $assettype, 
-    string $inv
+    string $inv,
+    string $assetdesc
 ): void {
     if ($assetvalue > 2147483647) { // failsafe for if the user feels silly enough to put a quadvigintillion dollars for their price
         $assetvalue = 2147483647;
     }
     $false = 0;
+    $true = 1;
 
     try {
-        $insert_sql = 'INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`type`) VALUES (?,?,?,?,?,?,?)';
+        $uploadts = time();
+        $insert_sql = 'INSERT INTO `items` (`name`,`asset`,`owner`,`value`,`public`,`approved`,`uploadts`,`type`,`desc`) VALUES (?,?,?,?,?,?,?,?,?)';
         $stmt = $db->prepare($insert_sql);
-        $stmt->bind_param('ssiiiis', $assetname, $target_file, $uid, $assetvalue, $false, $false, $assettype);
+        $stmt->bind_param('ssiiiiiss', $assetname, $target_file, $uid, $assetvalue, $true, $false, $uploadts, $assettype, $assetdesc);
         $stmt->execute();
         $itemid = $db->insert_id;
         $stmt->close();
@@ -116,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['filetoupload'], $_P
 $file = $_FILES['filetoupload'];
 $assettype = $_POST['type'];
 $assetname = trim($_POST['itemname']);
+$assetdesc = trim($_POST['itemdesc']);
 $assetvalue = (int)$_POST['itemprice'];
 $tmp_name = $file['tmp_name'];
 
@@ -169,7 +173,7 @@ if ($assettype === 'Shr' || $assettype === 'Dec') {
         }
         $imagick->clear();
         $imagick->destroy();
-        handle_db_operations($db, $assetname, $target_file, $uid, $assetvalue, $assettype, $inv);
+        handle_db_operations($db, $assetname, $target_file, $uid, $assetvalue, $assettype, $inv, $assetdesc);
 
     } catch (ImagickException $e) {
         sendjsonback('error', 'Asset processing failed (Imagick): ' . $e->getMessage(), 500);
@@ -200,7 +204,7 @@ if ($assettype === 'Shr' || $assettype === 'Dec') {
         $format->setAudioKiloBitrate($final_abr_kbps);
         $format->setAdditionalParameters(['-af', 'loudnorm=i=-16:lra=11:tp=-1.5']);
         $audio->save($format, $target_file);
-        handle_db_operations($db, $assetname, $target_file, $uid, $assetvalue, $assettype, $inv);
+        handle_db_operations($db, $assetname, $target_file, $uid, $assetvalue, $assettype, $inv, $assetdesc);
 
     } catch (\FFMpeg\Exception\ExceptionInterface $e) {
         sendjsonback('error', 'Audio processing failed (FFMpeg): ' . $e->getMessage(), 500);

@@ -10,7 +10,7 @@ if ($uid === null || $db === null) {
     die("Authentication Error...");
 }
 $stmtcheckitem = $db->prepare("
-SELECT id, name, asset, owner, value, public, type
+SELECT id, name, asset, owner, value, public, type, `uploadts`, `desc`
 FROM items
 WHERE approved = 0
 ");
@@ -113,26 +113,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ob_start();
 ?>
 <div class="deadcenter">
-    <div class="itemborder">
+    <div class="catalogitemborder">
     <?php
 if ($result->num_rows > 0) {
 while ($row = $result->fetch_assoc()) {
-    $id     = htmlspecialchars($row['id']);
+    $id         = htmlspecialchars($row['id']);
     $itemname   = htmlspecialchars($row['name']);
-    $owner  = htmlspecialchars($row['owner']);
-    $value  = htmlspecialchars($row['value']);
-    $public = htmlspecialchars($row['public']);
-    $type   = htmlspecialchars($row['type']);
+    $owner      = htmlspecialchars($row['owner']);
+    $value      = htmlspecialchars($row['value']);
+    $public     = htmlspecialchars($row['public']);
+    $type       = htmlspecialchars($row['type']);
+    $itemdesc   = htmlspecialchars($row['desc']);
+    $uploaddate = htmlspecialchars($row['uploadts']);
     ?>
-    <div class='item' id="<?php echo $id;?>">
-        <div class='iteminfo'>
+    <div class='catalogitem' id="<?php echo $id;?>" style="justify-content: space-between;">
+        <div class='catalogiteminfo'>
+            <div>
             <?php echo $itemname; ?>
             <br>
-            Selling for ¥<?php echo $value; ?>
+            ¥<?php echo $value; ?>
             <br>
-            Uploaded by: <?php echo getuser($owner)['username'];?>
+            <span title="<?php echo date('jS l, F Y', $uploaddate);?>"><?php echo date("d-m-y",$uploaddate); ?></span>
+            <?php if (!empty($itemdesc)): ?>
+            Description:
+            <em><?php echo $itemdesc;?></em>
+            <?php endif; ?>
+            <br>
+            <span>Uploaded by: <a href="profile?id=<?php echo $owner;?>"><?php echo getuser($owner)['username'];?></a></span>
             </div>
-            <div class='itemasset'>
+            <div class='catalogitemasset'>
                 <?php
             if ($type == "Shr" || $type == "Dec") {
                 ?>
@@ -146,6 +155,7 @@ while ($row = $result->fetch_assoc()) {
                 <?php
             }
             ?>
+            </div>
             </div>
             <span id="stat<?php echo $id;?>">&nbsp;</span>
             <div class="buttons">

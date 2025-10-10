@@ -21,6 +21,10 @@ ob_start();
             <br>
             <input type="text" placeholder="My epic asset" name="itemname" id="itemname" required>
             <br>
+            Description
+            <br>
+            <textarea type="textarea" placeholder="Nice shirt with alpha. Get good LSDBLOX street cred with this shirt." rows="4" cols="16" name="itemdesc" id="itemdesc"></textarea>
+            <br>
             Price
             <br>
             <input type="number" placeholder="0" name="itemprice" id="itemprice" required>
