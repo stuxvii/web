@@ -43,38 +43,43 @@ if ($CrawlerDetect->isCrawler()) {
         <link rel="stylesheet" href="../styles.css">
         <meta name="robots" content="noindex">
         <style>
-        <?php
-        if ($theme):
-            ?>
-                :root{
-                --primary-color: #fff;
-                --secondary-color: #000;
-                --good: #00bb00;
-                --evil: #dd2222;
-                }
-                body {                background-image:
-                linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-                var(--bgimg);}
-            <?php endif;
-        if (!$movebg): ?>
-                body{animation-name: none;}
+<?php if ($theme): ?>
+:root{
+    --primary-color: #fff;
+    --secondary-color: #000;
+    --good: #00bb00;
+    --evil: #dd2222;
+}
+body {                
+    background-image: linear-gradient(
+    rgba(255, 255, 255, 0.8), 
+    rgba(255, 255, 255, 0.8)), /* hack to make the background light mode lol */
+    var(--bgimg);
+}
+<?php endif;
+if (!$movebg): ?>
+body{
+    animation-name: none;
+}
 
-            <?php endif;
-        if (!$sidebars): ?>
-                .sidebars{justify-content: center;}
+<?php endif;
+if (!$sidebars): ?>
+.sidebars{
+    justify-content: center;
+}
 
-            <?php else: ?>
-                body{font-family: 'dink';}
-                html,
-                body,
-                input,
-                select,
-                option,
-                button {
-                    cursor: url('cursors/kangel.cur'), auto;
-                }
-                
-            <?php endif; ?>
+<?php else: ?>
+body{font-family: 'dink';}
+html,
+body,
+input,
+select,
+option,
+button {
+    cursor: url('cursors/kangel.cur'), auto;
+}
+    
+<?php endif; ?>
             </style>
     </head>
     <body>
@@ -95,23 +100,23 @@ if ($CrawlerDetect->isCrawler()) {
             <a href="inventory">Inventory</a>
         </div>
         <div>
-            <a href="profile?id=<?php echo $uid;?>"><?php echo htmlspecialchars($name); ?></a>
+            <a href="profile?id=<?php echo $uid; ?>"><?php echo htmlspecialchars($name); ?></a>
             <?php
-            $cursymbol = '¥';
-            switch ($uid) {
-                case 2:
-                    $cursymbol = '₺';
-                    break;
-                case 3:
-                    $cursymbol = '₴';
-                    break;
-                case 4:
-                    $cursymbol = 'دم';
-                    break;
-            }
-            echo $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
-            
-else: ?>
+    $cursymbol = '¥';
+    switch ($uid) {
+        case 2:
+            $cursymbol = '₺';
+            break;
+        case 3:
+            $cursymbol = '₴';
+            break;
+        case 4:
+            $cursymbol = 'دم';
+            break;
+    }
+    echo $cursymbol . '<span id="amountofmoney">' . htmlspecialchars($money) . '</span>';
+else:
+    ?>
         <div>
             <a href="login">Login</a>
             <a href="register">Register</a>
@@ -137,13 +142,14 @@ else: ?>
         <?php endif; ?>
 	</div>
 	<div class="navbar" style="background-color:var(--evil);justify-content: center;">
-    <?php if ($_SERVER['SERVER_NAME'] == "acdbx.top"): ?>
+    <?php if ($_SERVER['SERVER_NAME'] == 'acdbx.top'): ?>
         <div>It has been detected that you're still on the older domain! (<?php echo $_SERVER['SERVER_NAME']; ?>) Please use '<a href="https://lsdblox.cc">lsdblox.cc</a>' from now on, as this domain will soon be phased out, and replaced with other content.</div>
-    <?php endif;?>
+    <?php endif; ?>
 	</div>
     <?php
     echo "<div class='content'>";
-    if ($maintenanceon && !$opperms):?>
+    if ($maintenanceon && !$opperms):
+        ?>
     <div class='border'>lsdblox is currently<br>under maintenance.<br>check #announcements &<br>#lsdblox for information.</div>
     <?php
     else:

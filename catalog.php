@@ -12,9 +12,9 @@ $links = [
 function getitemswtype($type) {
     global $db;
     $stmt = $db->prepare("
-        SELECT id, name, asset, owner, value, public, type
+        SELECT id, name, asset, owner, value, type
         FROM items
-        WHERE approved = 1 AND type = ?
+        WHERE approved = 1 AND public =1 AND type = ?
         ORDER BY id DESC
     ");
     $stmt->bind_param("s", $type);
@@ -29,6 +29,9 @@ ob_start();
     <div>
 <?php
 $curquery = ltrim($_SERVER['REQUEST_URI'] ?? '', '/');
+if ($category == "") { 
+    $curquery = "shr"; 
+}
 foreach ($links as $link) {
     $href = $link['href'];
     $text = $link['text'];
@@ -52,8 +55,8 @@ if ($fetch->num_rows > 0) {
         $public = htmlspecialchars($row['public']);
         $type = htmlspecialchars($row['type']);
     ?>
-    <a href="item.php?id=<?php echo $id;?>">
     <div class='catalogitem' data-item-id="<?php echo $id;?>"> 
+        <a href="item.php?id=<?php echo $id;?>">
         <div class='catalogitemasset'>
             <?php
             if ($type == "Shr" || $type == "Dec") {
@@ -67,8 +70,8 @@ if ($fetch->num_rows > 0) {
             <?php echo $itemname;?>
             <span><?php if ($value > 0) {echo "¥" . $value;} else {echo "Free";}?></span>
         </div>
+    </a>
     </div>
-            </a>
 <?php }} else {
     echo "No items up for sale.";
 }?>
